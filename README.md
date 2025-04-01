@@ -29,7 +29,7 @@ $ cd ShiboScript
 
 ### Running ShiboScript
 Run the interpreter:
-```sh
+```bash
 $ python shiboscript.py
 ```
 This starts the REPL (Read-Eval-Print Loop). To exit, type `exit`.
@@ -79,6 +79,28 @@ func add(a, b) {
 }
 var sum = add(3, 4);
 print(sum);  // Output: 7
+```
+### Arrays
+```shiboscript
+var arr = [1, 2, 3];
+arr[0] = 10;
+append(arr, 4); //append 4 to the end of the array
+print(arr);  // Output: [10, 2, 3, 4,];
+remove(arr, 2); // remmove  element from array
+[10, 3, 4] //output
+pop(arr, 0) // remove first element from array
+[3, 4] //output
+
+```
+
+### Dictionary
+```shiboscript
+var d = {"a": 1, "b": 2}
+d["a"]
+1 //output
+d["c"] = 3 // add new key-value pair
+d["c"] //output 3
+keys(d) //output ["a", "b", "c"]
 ```
 
 ## Built-in Functions
