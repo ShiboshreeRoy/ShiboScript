@@ -6,4 +6,3 @@ print(add(2, 3));
 #hello
 var d = {"a": 1, "b": 2}
 print(d);
-print(math.sqrt(16))

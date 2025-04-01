@@ -21,9 +21,11 @@ TOKENS = [
     ('VAR', r'\bvar\b'), ('FUNC', r'\bfunc\b'), ('IF', r'\bif\b'), ('ELSE', r'\belse\b'),
     ('WHILE', r'\bwhile\b'), ('DO', r'\bdo\b'), ('FOR', r'\bfor\b'), ('IN', r'\bin\b'),
     ('BREAK', r'\bbreak\b'), ('CONTINUE', r'\bcontinue\b'), ('PRINT', r'\bprint\b'),
-    ('RETURN', r'\breturn\b'), ('TRUE', r'\btrue\b'), ('FALSE', r'\bfalse\b'),
-    ('NULL', r'\bnull\b'), ('NUMBER', r'\d+(\.\d+)?'), ('STRING', r'"[^"]*"'),
-    ('IDENTIFIER', r'[a-zA-Z_]\w*'), ('OPERATOR', r'[+\-*/%=<>!&|^~]|[<>=!]=|//|&&|\|\|'),
+    ('RETURN', r'\breturn\b'), ('TRY', r'\btry\b'), ('CATCH', r'\bcatch\b'),
+    ('TRUE', r'\btrue\b'), ('FALSE', r'\bfalse\b'), ('NULL', r'\bnull\b'),
+    ('NUMBER', r'\d+\.\d*|\.\d+|\d+'),  # Updated to handle integers and floats
+    ('STRING', r'"[^"]*"'), ('IDENTIFIER', r'[a-zA-Z_]\w*'),
+    ('OPERATOR', r'[+\-*/%=<>!&|^~]|[<>=!]=|//|&&|\|\|'),
     ('LPAREN', r'\('), ('RPAREN', r'\)'), ('LBRACE', r'\{'), ('RBRACE', r'\}'),
     ('LBRACKET', r'\['), ('RBRACKET', r'\]'), ('COMMA', r','), ('COLON', r':'),
     ('SEMI', r';'), ('DOT', r'\.'), ('NEWLINE', r'\n'),
@@ -33,6 +35,7 @@ TOKENS = [
 Program = namedtuple('Program', ['statements'])
 VarDecl = namedtuple('VarDecl', ['name', 'value'])
 FuncDef = namedtuple('FuncDef', ['name', 'params', 'body'])
+TryStmt = namedtuple('TryStmt', ['try_block', 'catch_var', 'catch_block'])
 IfStmt = namedtuple('IfStmt', ['condition', 'then_branch', 'else_branch'])
 WhileStmt = namedtuple('WhileStmt', ['condition', 'body'])
 DoWhileStmt = namedtuple('DoWhileStmt', ['body', 'condition'])
@@ -69,12 +72,13 @@ class BreakException(Exception):
 class ContinueException(Exception):
     pass
 
-# Lexer
+# Lexer with Line Tracking
 class Lexer:
     def __init__(self, code):
         self.code = code
         self.pos = 0
         self.tokens = []
+        self.line = 1
         
     def tokenize(self):
         while self.pos < len(self.code):
@@ -88,15 +92,19 @@ class Lexer:
                 match = regex.match(self.code, self.pos)
                 if match:
                     value = match.group(0)
-                    if token_type != 'NEWLINE' or not self.tokens or self.tokens[-1][0] != 'NEWLINE':
-                        self.tokens.append((token_type, value))
+                    if token_type == 'NEWLINE':
+                        self.line += 1
+                        if not self.tokens or self.tokens[-1][0] != 'NEWLINE':
+                            self.tokens.append((token_type, value, self.line))
+                    else:
+                        self.tokens.append((token_type, value, self.line))
                     self.pos = match.end()
                     break
             if not match:
                 if self.code[self.pos].isspace():
                     self.pos += 1
                 else:
-                    raise SyntaxError(f"Unexpected character at position {self.pos}: '{self.code[self.pos]}'")
+                    raise SyntaxError(f"Line {self.line}: Unexpected character '{self.code[self.pos]}'")
         return self.tokens
 
 # Parser
@@ -118,7 +126,8 @@ class Parser:
             return True
         elif optional and (token is None or token[0] == 'NEWLINE'):
             return True
-        raise SyntaxError(f"Expected {token_type} {value or ''}, got {token}")
+        line = token[2] if token else "unknown"
+        raise SyntaxError(f"Line {line}: Expected {token_type} {value or ''}, got {token}")
     
     def parse(self):
         return self.parse_program()
@@ -143,6 +152,8 @@ class Parser:
             return self.parse_var_decl()
         elif token[0] == 'FUNC':
             return self.parse_func_def()
+        elif token[0] == 'TRY':
+            return self.parse_try_stmt()
         elif token[0] == 'IF':
             return self.parse_if_stmt()
         elif token[0] == 'WHILE':
@@ -201,6 +212,33 @@ class Parser:
                 self.advance()
         self.expect('RBRACE', '}')
         return FuncDef(name, params, body)
+    
+    def parse_try_stmt(self):
+        self.advance()
+        self.expect('LBRACE', '{')
+        try_block = []
+        while self.current_token() and self.current_token()[0] != 'RBRACE':
+            stmt = self.parse_statement()
+            if stmt:
+                try_block.append(stmt)
+            while self.current_token() and self.current_token()[0] in ('NEWLINE', 'SEMI'):
+                self.advance()
+        self.expect('RBRACE', '}')
+        self.expect('CATCH', 'catch')
+        self.expect('LPAREN', '(')
+        catch_var = self.current_token()[1]
+        self.advance()
+        self.expect('RPAREN', ')')
+        self.expect('LBRACE', '{')
+        catch_block = []
+        while self.current_token() and self.current_token()[0] != 'RBRACE':
+            stmt = self.parse_statement()
+            if stmt:
+                catch_block.append(stmt)
+            while self.current_token() and self.current_token()[0] in ('NEWLINE', 'SEMI'):
+                self.advance()
+        self.expect('RBRACE', '}')
+        return TryStmt(try_block, catch_var, catch_block)
     
     def parse_param_list(self):
         params = []
@@ -394,7 +432,13 @@ class Parser:
             expr = Identifier(token[1])
         elif token[0] == 'NUMBER':
             self.advance()
-            expr = Number(float(token[1]))
+            num_str = token[1]
+            if '.' in num_str:
+                if num_str.endswith('.'):
+                    num_str += '0'
+                expr = Number(float(num_str))
+            else:
+                expr = Number(int(num_str))
         elif token[0] == 'STRING':
             self.advance()
             expr = String(token[1][1:-1])
@@ -416,7 +460,7 @@ class Parser:
         elif token[0] == 'LBRACE':
             expr = self.parse_dict_literal()
         else:
-            raise SyntaxError(f"Unexpected token: {token}")
+            raise SyntaxError(f"Line {token[2]}: Unexpected token: {token}")
         
         while self.current_token() and self.current_token()[0] == 'DOT':
             self.advance()
@@ -484,13 +528,19 @@ class Interpreter:
             'append': lambda lst, val: lst.append(val) or lst,
             'remove': lambda lst, val: lst.remove(val) or lst,
             'pop': lambda lst, idx=None: lst.pop(idx if idx is not None else -1),
+            'sort': lambda lst: lst.sort() or lst,
+            'reverse': lambda lst: lst.reverse() or lst,
             'keys': lambda d: list(d.keys()),
             'len': len,
+            'range': lambda start, stop: list(range(start, stop)),
             'input': input,
             'type': lambda x: type(x).__name__,
             'str': str,
             'int': int,
             'float': float,
+            'upper': lambda s: s.upper(),
+            'lower': lambda s: s.lower(),
+            'split': lambda s, sep=None: s.split(sep),
             'math': {
                 'sqrt': math.sqrt,
                 'sin': math.sin,
@@ -513,6 +563,8 @@ class Interpreter:
             return self.eval_var_decl(node)
         elif isinstance(node, FuncDef):
             return self.eval_func_def(node)
+        elif isinstance(node, TryStmt):
+            return self.eval_try_stmt(node)
         elif isinstance(node, AssignStmt):
             return self.eval_assign_stmt(node)
         elif isinstance(node, IfStmt):
@@ -585,6 +637,13 @@ class Interpreter:
     def eval_func_def(self, node):
         self.env[node.name] = node
         return None
+    
+    def eval_try_stmt(self, node):
+        try:
+            return self.eval_program(Program(node.try_block))
+        except Exception as e:
+            self.env[node.catch_var] = str(e)
+            return self.eval_program(Program(node.catch_block))
     
     def eval_assign_stmt(self, node):
         value = self.eval(node.value)
@@ -788,7 +847,7 @@ def repl():
                     ast = parser.parse()
                     break
                 except SyntaxError as e:
-                    print(f"{Colors.FAIL}Syntax Error: {e}{Colors.ENDC}")
+                    print(f"{Colors.FAIL}{e}{Colors.ENDC}")
                     next_line = input(f"{Colors.WARNING}... {Colors.ENDC}")
                     if next_line.strip() == "":
                         raise
