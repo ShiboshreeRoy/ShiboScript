@@ -86,6 +86,13 @@ for (x in lst) {
  }
 #Output : 1, 2, 3
 ```
+## Or 
+## For Loop with Range
+```shiboscript
+ for (i in range(1, 4)) { 
+    print(i); 
+}
+```
 ### While Loop
 ```shiboscript
 var i = 0;
@@ -216,6 +223,7 @@ print(" ".join(s.split(" ")));  # "hello world"
 ```shiboscript
 var lst = [1, 2, 3];
 lst.append(4);
+lst.sort();
 print(lst);
 ```
 
@@ -238,7 +246,14 @@ print(len(s));          # 11
 - **String Manipulation:** `str_upper("hello")`, `str_split("a,b", ",")`
 - **Image Handling:** `load_image("img.png")`, `show_image(img)`
 
-## Example Programs
+## Error Hendling
+```shiboscript
+try { 
+    print(1 / 0); 
+    } catch (e) {
+         print("Error: " + e); 
+}
+```
 
 ### File Operations
 ```shiboscript
