@@ -1022,7 +1022,7 @@ class Interpreter:
 # REPL with Color and Multi-Line Support
 def repl():
     interpreter = Interpreter()
-    print(f"{Colors.OKCYAN}Welcome to FlexScript REPL! Type 'exit' to quit.{Colors.ENDC}")
+    print(f"{Colors.OKCYAN}Welcome to ShiboScript REPL! Type 'exit' to quit.{Colors.ENDC}")
     while True:
         try:
             code = input(f"{Colors.OKGREEN}shiboscript>>> {Colors.ENDC}")
