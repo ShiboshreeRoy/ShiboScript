@@ -262,6 +262,28 @@ write_file("test.txt", text);
 print(read_file("test.txt"));
 ```
 
+## Ethical Hacking mini projects Example
+# Webe Request
+```shiboscript
+var response = net.http_get("http://example.com")
+print(response.text)
+```
+# Hashing a Password
+```shiboscript
+var password = "secret"
+var hash = crypto.sha256(password)
+print(hash)
+```
+# System Command
+```shiboscript
+var result = os.run_command("dir")  # On Windows; use "ls" on Unix-like systems
+print(result.stdout)
+```
+# Random Payload
+```shiboscript
+var payload = random.string(10)
+print(payload)
+```
 ## How It Works
 ShiboScript is powered by three core components:
 1. **Lexer** – Converts source code into tokens.

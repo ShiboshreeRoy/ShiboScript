@@ -3,6 +3,16 @@ from collections import namedtuple
 from PIL import Image
 import math
 import sys
+import urllib.request
+import urllib.parse
+import base64
+import hashlib
+import subprocess
+import os
+import random
+import string
+import json
+import time
 
 # ANSI Color Codes
 class Colors:
@@ -16,6 +26,124 @@ class Colors:
     BOLD = '\033[1m'
     UNDERLINE = '\033[4m'
 
+# Helper Functions for Ethical Hacking Features
+def http_get(url, headers=None, params=None):
+    """Send an HTTP GET request."""
+    if params:
+        url += '?' + urllib.parse.urlencode(params)
+    req = urllib.request.Request(url, headers=headers or {})
+    with urllib.request.urlopen(req) as response:
+        return {
+            'status': response.status,
+            'text': response.read().decode('utf-8')
+        }
+
+def http_post(url, data, headers=None):
+    """Send an HTTP POST request with form data."""
+    data = urllib.parse.urlencode(data).encode('utf-8')
+    req = urllib.request.Request(url, data=data, headers=headers or {})
+    with urllib.request.urlopen(req) as response:
+        return {
+            'status': response.status,
+            'text': response.read().decode('utf-8')
+        }
+
+def base64_encode(s):
+    """Encode a string to base64."""
+    return base64.b64encode(s.encode('utf-8')).decode('utf-8')
+
+def base64_decode(s):
+    """Decode a base64 string."""
+    return base64.b64decode(s).decode('utf-8')
+
+def md5(s):
+    """Compute MD5 hash of a string."""
+    return hashlib.md5(s.encode('utf-8')).hexdigest()
+
+def sha1(s):
+    """Compute SHA1 hash of a string."""
+    return hashlib.sha1(s.encode('utf-8')).hexdigest()
+
+def sha256(s):
+    """Compute SHA256 hash of a string."""
+    return hashlib.sha256(s.encode('utf-8')).hexdigest()
+
+def run_command(cmd):
+    """Run a shell command and return output."""
+    result = subprocess.run(cmd, shell=True, capture_output=True, text=True)
+    return {
+        'stdout': result.stdout,
+        'stderr': result.stderr,
+        'returncode': result.returncode
+    }
+
+def get_env(var):
+    """Get an environment variable."""
+    return os.environ.get(var)
+
+def set_env(var, value):
+    """Set an environment variable."""
+    os.environ[var] = value
+
+def get_cwd():
+    """Get the current working directory."""
+    return os.getcwd()
+
+def change_dir(path):
+    """Change the current working directory."""
+    os.chdir(path)
+
+def list_dir(path):
+    """List files in a directory."""
+    return os.listdir(path)
+
+def exists(path):
+    """Check if a path exists."""
+    return os.path.exists(path)
+
+def random_int(min, max):
+    """Generate a random integer between min and max."""
+    return random.randint(min, max)
+
+def random_string(length):
+    """Generate a random alphanumeric string of specified length."""
+    return ''.join(random.choice(string.ascii_letters + string.digits) for _ in range(length))
+
+def parse_url(url):
+    """Parse a URL into components."""
+    parsed = urllib.parse.urlparse(url)
+    return {
+        'scheme': parsed.scheme,
+        'netloc': parsed.netloc,
+        'path': parsed.path,
+        'query': urllib.parse.parse_qs(parsed.query),
+        'fragment': parsed.fragment
+    }
+
+def url_encode(s):
+    """URL-encode a string."""
+    return urllib.parse.quote(s)
+
+def url_decode(s):
+    """URL-decode a string."""
+    return urllib.parse.unquote(s)
+
+def json_encode(obj):
+    """Convert an object to a JSON string."""
+    return json.dumps(obj)
+
+def json_decode(s):
+    """Parse a JSON string into an object."""
+    return json.loads(s)
+
+def time_now():
+    """Get the current time in seconds since epoch."""
+    return time.time()
+
+def time_sleep(seconds):
+    """Pause execution for a number of seconds."""
+    time.sleep(seconds)
+
 # Token Types
 TOKENS = [
     ('VAR', r'\bvar\b'), ('FUNC', r'\bfunc\b'), ('IF', r'\bif\b'), ('ELSE', r'\belse\b'),
@@ -23,7 +151,7 @@ TOKENS = [
     ('BREAK', r'\bbreak\b'), ('CONTINUE', r'\bcontinue\b'), ('PRINT', r'\bprint\b'),
     ('RETURN', r'\breturn\b'), ('TRY', r'\btry\b'), ('CATCH', r'\bcatch\b'),
     ('TRUE', r'\btrue\b'), ('FALSE', r'\bfalse\b'), ('NULL', r'\bnull\b'),
-    ('NUMBER', r'\d+\.\d*|\.\d+|\d+'),  # Updated to handle integers and floats
+    ('NUMBER', r'\d+\.\d*|\.\d+|\d+'),  # Handles integers and floats
     ('STRING', r'"[^"]*"'), ('IDENTIFIER', r'[a-zA-Z_]\w*'),
     ('OPERATOR', r'[+\-*/%=<>!&|^~]|[<>=!]=|//|&&|\|\|'),
     ('LPAREN', r'\('), ('RPAREN', r'\)'), ('LBRACE', r'\{'), ('RBRACE', r'\}'),
@@ -525,6 +653,7 @@ class Parser:
 class Interpreter:
     def __init__(self):
         self.env = {
+            # Existing List/Dict/String Functions
             'append': lambda lst, val: lst.append(val) or lst,
             'remove': lambda lst, val: lst.remove(val) or lst,
             'pop': lambda lst, idx=None: lst.pop(idx if idx is not None else -1),
@@ -541,6 +670,7 @@ class Interpreter:
             'upper': lambda s: s.upper(),
             'lower': lambda s: s.lower(),
             'split': lambda s, sep=None: s.split(sep),
+            # Math Namespace
             'math': {
                 'sqrt': math.sqrt,
                 'sin': math.sin,
@@ -549,10 +679,69 @@ class Interpreter:
                 'pow': math.pow,
                 'exp': math.exp,
             },
-            'load_image': lambda path: Image.open(path),
-            'show_image': lambda img: img.show() or None,
-            'read_file': lambda path: open(path, 'r').read(),
-            'write_file': lambda path, content: open(path, 'w').write(content) or None,
+            # Image Namespace
+            'image': {
+                'load': lambda path: Image.open(path),
+                'show': lambda img: img.show() or None,
+            },
+            # File Namespace
+            'file': {
+                'read': lambda path: open(path, 'r').read(),
+                'write': lambda path, content: open(path, 'w').write(content) or None,
+            },
+            # Network Namespace
+            'net': {
+                'http_get': http_get,
+                'http_post': http_post,
+            },
+            # Cryptography Namespace
+            'crypto': {
+                'md5': md5,
+                'sha1': sha1,
+                'sha256': sha256,
+            },
+            # OS/System Namespace
+            'os': {
+                'get_env': get_env,
+                'set_env': set_env,
+                'get_cwd': get_cwd,
+                'change_dir': change_dir,
+                'list_dir': list_dir,
+                'exists': exists,
+                'run_command': run_command,
+            },
+            # Random Namespace
+            'random': {
+                'int': random_int,
+                'string': random_string,
+            },
+            # URL Namespace
+            'url': {
+                'parse': parse_url,
+                'encode': url_encode,
+                'decode': url_decode,
+            },
+            # Base64 Namespace
+            'base64': {
+                'encode': base64_encode,
+                'decode': base64_decode,
+            },
+            # Regular Expression Namespace
+            're': {
+                'search': lambda pattern, string: re.search(pattern, string).groups() if re.search(pattern, string) else None,
+                'match': lambda pattern, string: re.match(pattern, string).groups() if re.match(pattern, string) else None,
+                'findall': lambda pattern, string: re.findall(pattern, string),
+            },
+            # JSON Namespace
+            'json': {
+                'encode': json_encode,
+                'decode': json_decode,
+            },
+            # Time Namespace
+            'time': {
+                'now': time_now,
+                'sleep': time_sleep,
+            },
         }
         self.loop_depth = 0
     
