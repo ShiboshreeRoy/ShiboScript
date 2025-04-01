@@ -2,8 +2,21 @@ import re
 from collections import namedtuple
 from PIL import Image
 import math
+import sys
 
-# Token Types (unchanged)
+# ANSI Color Codes
+class Colors:
+    HEADER = '\033[95m'
+    OKBLUE = '\033[94m'
+    OKCYAN = '\033[96m'
+    OKGREEN = '\033[92m'
+    WARNING = '\033[93m'
+    FAIL = '\033[91m'
+    ENDC = '\033[0m'
+    BOLD = '\033[1m'
+    UNDERLINE = '\033[4m'
+
+# Token Types
 TOKENS = [
     ('VAR', r'\bvar\b'), ('FUNC', r'\bfunc\b'), ('IF', r'\bif\b'), ('ELSE', r'\belse\b'),
     ('WHILE', r'\bwhile\b'), ('DO', r'\bdo\b'), ('FOR', r'\bfor\b'), ('IN', r'\bin\b'),
@@ -16,7 +29,7 @@ TOKENS = [
     ('SEMI', r';'), ('DOT', r'\.'), ('NEWLINE', r'\n'),
 ]
 
-# AST Nodes (unchanged)
+# AST Nodes
 Program = namedtuple('Program', ['statements'])
 VarDecl = namedtuple('VarDecl', ['name', 'value'])
 FuncDef = namedtuple('FuncDef', ['name', 'params', 'body'])
@@ -45,7 +58,7 @@ IndexExpr = namedtuple('IndexExpr', ['object', 'index'])
 Slice = namedtuple('Slice', ['start', 'end'])
 AttributeExpr = namedtuple('AttributeExpr', ['object', 'attribute'])
 
-# Exceptions (unchanged)
+# Exceptions
 class ReturnException(Exception):
     def __init__(self, value):
         self.value = value
@@ -56,7 +69,7 @@ class BreakException(Exception):
 class ContinueException(Exception):
     pass
 
-# Lexer (unchanged)
+# Lexer
 class Lexer:
     def __init__(self, code):
         self.code = code
@@ -86,7 +99,7 @@ class Lexer:
                     raise SyntaxError(f"Unexpected character at position {self.pos}: '{self.code[self.pos]}'")
         return self.tokens
 
-# Parser (unchanged, already supports dot notation)
+# Parser
 class Parser:
     def __init__(self, tokens):
         self.tokens = tokens
@@ -464,24 +477,20 @@ class Parser:
         self.expect('RBRACE', '}')
         return DictLiteral(pairs)
 
-# Interpreter (updated)
+# Interpreter
 class Interpreter:
     def __init__(self):
         self.env = {
-            # List operations
             'append': lambda lst, val: lst.append(val) or lst,
             'remove': lambda lst, val: lst.remove(val) or lst,
             'pop': lambda lst, idx=None: lst.pop(idx if idx is not None else -1),
             'keys': lambda d: list(d.keys()),
-            # Built-in functions
             'len': len,
             'input': input,
             'type': lambda x: type(x).__name__,
-            # Type casting functions
             'str': str,
             'int': int,
             'float': float,
-            # Math module
             'math': {
                 'sqrt': math.sqrt,
                 'sin': math.sin,
@@ -490,7 +499,6 @@ class Interpreter:
                 'pow': math.pow,
                 'exp': math.exp,
             },
-            # Image and file operations
             'load_image': lambda path: Image.open(path),
             'show_image': lambda img: img.show() or None,
             'read_file': lambda path: open(path, 'r').read(),
@@ -763,12 +771,13 @@ class Interpreter:
             return obj.get(index, None)
         raise TypeError("Cannot index non-list or non-dict")
 
-# REPL (unchanged)
+# REPL with Color and Multi-Line Support
 def repl():
     interpreter = Interpreter()
+    print(f"{Colors.OKCYAN}Welcome to FlexScript REPL! Type 'exit' to quit.{Colors.ENDC}")
     while True:
         try:
-            code = input(">>> ")
+            code = input(f"{Colors.OKGREEN}shiboscript>>> {Colors.ENDC}")
             if code.strip() == "exit":
                 break
             while True:
@@ -778,16 +787,36 @@ def repl():
                     parser = Parser(tokens)
                     ast = parser.parse()
                     break
-                except SyntaxError:
-                    next_line = input("... ")
+                except SyntaxError as e:
+                    print(f"{Colors.FAIL}Syntax Error: {e}{Colors.ENDC}")
+                    next_line = input(f"{Colors.WARNING}... {Colors.ENDC}")
                     if next_line.strip() == "":
                         raise
                     code += "\n" + next_line
             result = interpreter.eval(ast)
             if result is not None:
-                print(result)
+                print(f"{Colors.OKBLUE}{result}{Colors.ENDC}")
         except Exception as e:
-            print(f"Error: {e}")
+            print(f"{Colors.FAIL}Error: {e}{Colors.ENDC}")
+
+# Run Script from File
+def run_file(filename):
+    try:
+        with open(filename, 'r') as file:
+            code = file.read()
+        lexer = Lexer(code)
+        tokens = lexer.tokenize()
+        parser = Parser(tokens)
+        ast = parser.parse()
+        interpreter = Interpreter()
+        interpreter.eval(ast)
+    except FileNotFoundError:
+        print(f"{Colors.FAIL}File not found: {filename}{Colors.ENDC}")
+    except Exception as e:
+        print(f"{Colors.FAIL}Error: {e}{Colors.ENDC}")
 
 if __name__ == "__main__":
-    repl()
+    if len(sys.argv) > 1:
+        run_file(sys.argv[1])
+    else:
+        repl()

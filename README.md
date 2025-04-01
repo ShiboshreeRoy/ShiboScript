@@ -30,7 +30,12 @@ $ cd ShiboScript
 ### Running ShiboScript
 Run the interpreter:
 ```bash
-$ python shiboscript.py
+python shiboscript.py
+```
+### Running ShiboScript
+Run the interpreter with file:
+```bash
+python shiboscript.py filename.sp
 ```
 This starts the REPL (Read-Eval-Print Loop). To exit, type `exit`.
 
@@ -234,17 +239,7 @@ print(len(s));          # 11
 - **Image Handling:** `load_image("img.png")`, `show_image(img)`
 
 ## Example Programs
-### Factorial Calculation
-```shiboscript
-func factorial(n) {
-    if (n == 0) {
-        return 1;
-    } else {
-        return n * factorial(n - 1);
-    }
-}
-print(factorial(5));  // Output: 120
-```
+
 ### File Operations
 ```shiboscript
 var text = "Hello, ShiboScript!";
