@@ -3,41 +3,20 @@ from collections import namedtuple
 from PIL import Image
 import math
 
-# Token Types (Added 'DOT' and updated 'NUMBER')
+# Token Types (unchanged)
 TOKENS = [
-    ('VAR', r'\bvar\b'),
-    ('FUNC', r'\bfunc\b'),
-    ('IF', r'\bif\b'),
-    ('ELSE', r'\belse\b'),
-    ('WHILE', r'\bwhile\b'),
-    ('DO', r'\bdo\b'),
-    ('FOR', r'\bfor\b'),
-    ('IN', r'\bin\b'),
-    ('BREAK', r'\bbreak\b'),
-    ('CONTINUE', r'\bcontinue\b'),
-    ('PRINT', r'\bprint\b'),
-    ('RETURN', r'\breturn\b'),
-    ('TRUE', r'\btrue\b'),
-    ('FALSE', r'\bfalse\b'),
-    ('NULL', r'\bnull\b'),
-    ('NUMBER', r'\d+(\.\d+)?'),  # Supports floats
-    ('STRING', r'"[^"]*"'),
-    ('IDENTIFIER', r'[a-zA-Z_]\w*'),
-    ('OPERATOR', r'[+\-*/%=<>!&|^~]|[<>=!]=|//|&&|\|\|'),
-    ('LPAREN', r'\('),
-    ('RPAREN', r'\)'),
-    ('LBRACE', r'\{'),
-    ('RBRACE', r'\}'),
-    ('LBRACKET', r'\['),
-    ('RBRACKET', r'\]'),
-    ('COMMA', r','),
-    ('COLON', r':'),
-    ('SEMI', r';'),
-    ('DOT', r'\.'),  # Added for attribute access
-    ('NEWLINE', r'\n'),
+    ('VAR', r'\bvar\b'), ('FUNC', r'\bfunc\b'), ('IF', r'\bif\b'), ('ELSE', r'\belse\b'),
+    ('WHILE', r'\bwhile\b'), ('DO', r'\bdo\b'), ('FOR', r'\bfor\b'), ('IN', r'\bin\b'),
+    ('BREAK', r'\bbreak\b'), ('CONTINUE', r'\bcontinue\b'), ('PRINT', r'\bprint\b'),
+    ('RETURN', r'\breturn\b'), ('TRUE', r'\btrue\b'), ('FALSE', r'\bfalse\b'),
+    ('NULL', r'\bnull\b'), ('NUMBER', r'\d+(\.\d+)?'), ('STRING', r'"[^"]*"'),
+    ('IDENTIFIER', r'[a-zA-Z_]\w*'), ('OPERATOR', r'[+\-*/%=<>!&|^~]|[<>=!]=|//|&&|\|\|'),
+    ('LPAREN', r'\('), ('RPAREN', r'\)'), ('LBRACE', r'\{'), ('RBRACE', r'\}'),
+    ('LBRACKET', r'\['), ('RBRACKET', r'\]'), ('COMMA', r','), ('COLON', r':'),
+    ('SEMI', r';'), ('DOT', r'\.'), ('NEWLINE', r'\n'),
 ]
 
-# AST Nodes (Added AttributeExpr, updated FuncCall)
+# AST Nodes (unchanged)
 Program = namedtuple('Program', ['statements'])
 VarDecl = namedtuple('VarDecl', ['name', 'value'])
 FuncDef = namedtuple('FuncDef', ['name', 'params', 'body'])
@@ -54,7 +33,7 @@ ExprStmt = namedtuple('ExprStmt', ['expression'])
 AssignStmt = namedtuple('AssignStmt', ['target', 'value'])
 BinaryOp = namedtuple('BinaryOp', ['left', 'op', 'right'])
 UnaryOp = namedtuple('UnaryOp', ['op', 'operand'])
-FuncCall = namedtuple('FuncCall', ['func_expr', 'args'])  # Updated
+FuncCall = namedtuple('FuncCall', ['func_expr', 'args'])
 ListLiteral = namedtuple('ListLiteral', ['elements'])
 DictLiteral = namedtuple('DictLiteral', ['pairs'])
 Identifier = namedtuple('Identifier', ['name'])
@@ -64,7 +43,7 @@ Boolean = namedtuple('Boolean', ['value'])
 Null = namedtuple('Null', [])
 IndexExpr = namedtuple('IndexExpr', ['object', 'index'])
 Slice = namedtuple('Slice', ['start', 'end'])
-AttributeExpr = namedtuple('AttributeExpr', ['object', 'attribute'])  # Added
+AttributeExpr = namedtuple('AttributeExpr', ['object', 'attribute'])
 
 # Exceptions (unchanged)
 class ReturnException(Exception):
@@ -107,7 +86,7 @@ class Lexer:
                     raise SyntaxError(f"Unexpected character at position {self.pos}: '{self.code[self.pos]}'")
         return self.tokens
 
-# Parser (updated for dot notation and assignments)
+# Parser (unchanged, already supports dot notation)
 class Parser:
     def __init__(self, tokens):
         self.tokens = tokens
@@ -426,7 +405,6 @@ class Parser:
         else:
             raise SyntaxError(f"Unexpected token: {token}")
         
-        # Handle attribute access
         while self.current_token() and self.current_token()[0] == 'DOT':
             self.advance()
             if self.current_token() and self.current_token()[0] == 'IDENTIFIER':
@@ -436,7 +414,6 @@ class Parser:
             else:
                 raise SyntaxError("Expected identifier after dot")
         
-        # Handle function calls or index expressions
         while self.current_token() and self.current_token()[0] in ('LPAREN', 'LBRACKET'):
             if self.current_token()[0] == 'LPAREN':
                 self.advance()
@@ -487,20 +464,24 @@ class Parser:
         self.expect('RBRACE', '}')
         return DictLiteral(pairs)
 
-# Interpreter (with enhancements)
+# Interpreter (updated)
 class Interpreter:
     def __init__(self):
         self.env = {
+            # List operations
             'append': lambda lst, val: lst.append(val) or lst,
             'remove': lambda lst, val: lst.remove(val) or lst,
             'pop': lambda lst, idx=None: lst.pop(idx if idx is not None else -1),
             'keys': lambda d: list(d.keys()),
+            # Built-in functions
             'len': len,
             'input': input,
             'type': lambda x: type(x).__name__,
+            # Type casting functions
             'str': str,
-            'int': int,  # Added
-            'float': float,  # Added
+            'int': int,
+            'float': float,
+            # Math module
             'math': {
                 'sqrt': math.sqrt,
                 'sin': math.sin,
@@ -509,14 +490,11 @@ class Interpreter:
                 'pow': math.pow,
                 'exp': math.exp,
             },
+            # Image and file operations
             'load_image': lambda path: Image.open(path),
             'show_image': lambda img: img.show() or None,
-            'read_file': lambda path: open(path, 'r').read(),  # Added
-            'write_file': lambda path, content: open(path, 'w').write(content) or None,  # Added
-            'str_split': lambda s, sep: s.split(sep),  # Added
-            'str_join': lambda lst, sep: sep.join(lst),  # Added
-            'str_upper': lambda s: s.upper(),  # Added
-            'str_lower': lambda s: s.lower(),  # Added
+            'read_file': lambda path: open(path, 'r').read(),
+            'write_file': lambda path, content: open(path, 'w').write(content) or None,
         }
         self.loop_depth = 0
     
@@ -574,8 +552,16 @@ class Interpreter:
         elif isinstance(node, AttributeExpr):
             obj = self.eval(node.object)
             if isinstance(obj, dict):
-                return obj.get(node.attribute, None)
-            raise TypeError("Attribute access on non-dict")
+                if node.attribute in obj:
+                    return obj[node.attribute]
+                try:
+                    return getattr(obj, node.attribute)
+                except AttributeError:
+                    raise AttributeError(f"Dictionary has no key or attribute '{node.attribute}'")
+            try:
+                return getattr(obj, node.attribute)
+            except AttributeError:
+                raise AttributeError(f"{type(obj).__name__} has no attribute '{node.attribute}'")
     
     def eval_program(self, node):
         result = None
@@ -610,7 +596,10 @@ class Interpreter:
             if isinstance(obj, dict):
                 obj[node.target.attribute] = value
             else:
-                raise TypeError("Cannot assign to attribute of non-dict")
+                try:
+                    setattr(obj, node.target.attribute, value)
+                except AttributeError:
+                    raise TypeError(f"Cannot set attribute '{node.target.attribute}' on {type(obj).__name__}")
         return None
     
     def eval_if_stmt(self, node):

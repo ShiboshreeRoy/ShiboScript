@@ -47,6 +47,13 @@ function function_Name(Argument or Without Argument) {
 ```ShiboScript 
 print("Hello World !");
 ```
+## Input 
+```ShiboScript
+var x = input("Enter a number: ");
+Enter a number: 25
+print(math.sqrt(x));
+5.0
+```
 ### Variables
 ```shiboscript 
 var x = 10;
@@ -63,7 +70,18 @@ if (x > 0) {
     print("Non-positive");
 }
 ```
-#### Loops
+#### 3 Type of Loops in ShiboScript
+## Like Them For, While, Do-While
+
+### For Loop
+```shiboscript
+var lst = [1, 2, 3];
+for (x in lst) {
+     print(x);
+ }
+#Output : 1, 2, 3
+```
+### While Loop
 ```shiboscript
 var i = 0;
 while (i < 5) {
@@ -71,7 +89,15 @@ while (i < 5) {
     i = i + 1;
 }
 ```
-
+### Do-While Loop
+```shiboscript
+var i = 0;
+do {
+    print(i);
+    i = i + 1;
+} while (i < 3);
+#Output: 1,2,3 
+```
 ### Functions
 ```shiboscript
 func add(a, b) {
@@ -92,7 +118,55 @@ pop(arr, 0) // remove first element from array
 [3, 4] //output
 
 ```
+### Array Example 
+```shiboscript
+# Create a list of fruits
+var fruits = ["apple", "banana", "cherry"];
 
+# Print the original list
+print("Original list:");
+print(fruits);
+
+# Add a new fruit to the end
+append(fruits, "date");
+print("After append:");
+print(fruits);
+
+# Change the second fruit
+fruits[1] = "blueberry";
+print("After modification:");
+print(fruits);
+
+# Get a sublist with slicing
+var subFruits = fruits[1:3];
+print("Sublist:");
+print(subFruits);
+
+# Remove a specific fruit
+remove(fruits, "cherry");
+print("After remove:");
+print(fruits);
+
+# Remove and discard the last fruit
+pop(fruits);
+print("After pop:");
+print(fruits);
+```
+### Output
+```shiboscript
+Original list:
+['apple', 'banana', 'cherry']
+After append:
+['apple', 'banana', 'cherry', 'date']
+After modification:
+['apple', 'blueberry', 'cherry', 'date']
+Sublist:
+['blueberry', 'cherry']
+After remove:
+['apple', 'blueberry', 'date']
+After pop:
+['apple', 'blueberry']
+```
 ### Dictionary
 ```shiboscript
 var d = {"a": 1, "b": 2}
@@ -103,6 +177,56 @@ d["c"] //output 3
 keys(d) //output ["a", "b", "c"]
 ```
 
+###  Types and Functions
+```shiboscript
+var b = true;
+print(b);
+True // Output
+print(type(b));
+bool //Output
+var n = null;
+print(n);
+None //Output
+print(str(123));
+123//Output
+```
+## Type Casting
+```shiboscript
+var num = 123;
+print(str(num));        # "123"
+print(int("456"));      # 456
+print(float("5.5"));    # 5.5
+
+```
+## String methods
+```shiboscript
+var s = "hello world";
+print(s.upper());       # "HELLO WORLD"
+print(s.lower());       # "hello world"
+print(s.capitalize());  # "Hello world"
+print(s.split(" "));    # ["hello", "world"]
+print(" ".join(s.split(" ")));  # "hello world"
+```
+## List methods(some)
+```shiboscript
+var lst = [1, 2, 3];
+lst.append(4);
+print(lst);
+```
+
+# Dictionary access
+```shiboscript 
+print(math.sqrt(16));   # 4.0
+var d = {"a": 1};
+d.b = 2;
+print(d);               # {'a': 1, 'b': 2}
+print(d.keys());        # ['a', 'b']
+```
+
+# Length
+```shiboscript
+print(len(s));          # 11
+```
 ## Built-in Functions
 - **Math:** `math.sqrt(n)`, `math.pow(x, y)`, `math.pi`
 - **File I/O:** `read_file("file.txt")`, `write_file("file.txt", "content")`
