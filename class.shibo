@@ -1,0 +1,49 @@
+# Define the base class Animal
+class Animal {
+    func init(self, name) {
+        self.name = name
+    }
+    func make_sound(self) {
+        print("Some generic animal sound")
+    }
+    func sleep(self) {
+        print(self.name + " is sleeping")
+    }
+}
+
+# Define the Dog class, inheriting from Animal
+class Dog(Animal) {
+    func init(self, name, breed) {
+        Animal.init(self, name)
+        self.breed = breed
+    }
+    func make_sound(self) {
+        print("Woof!")
+    }
+}
+
+# Define the Cat class, inheriting from Animal
+class Cat(Animal) {
+    func init(self, name, color) {
+        Animal.init(self, name)
+        self.color = color
+    }
+    func make_sound(self) {
+        print("Meow!")
+    }
+}
+
+# Create instances of Dog and Cat
+var my_dog = Dog("Buddy", "Golden Retriever")
+var my_cat = Cat("Whiskers", "Black")
+
+# Demonstrate inheritance and method overriding
+print(my_dog.name)       # Outputs: "Buddy"
+print(my_dog.breed)      # Outputs: "Golden Retriever"
+my_dog.make_sound()      # Outputs: "Woof!"
+my_dog.sleep()           # Outputs: "Buddy is sleeping"
+
+print(my_cat.name)       # Outputs: "Whiskers"
+print(my_cat.color)      # Outputs: "Black"
+my_cat.make_sound()      # Outputs: "Meow!"
+my_cat.sleep()           # Outputs: "Whiskers is sleeping"

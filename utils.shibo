@@ -1,0 +1,34 @@
+var VERSION = "1.0"
+
+# add number
+
+func add(a, b) {
+    return a + b
+}
+
+# multiply number
+
+func multiply(a, b) {
+    return a * b
+}
+
+# substruct number
+func substruct(a, b) {
+    return a - b
+}
+
+# divaided number
+func divaided(a, b) {
+    return a / b
+}
+
+# parcent number
+func parcent(a, b) {
+    return (a / b) * 100
+}
+
+# swap number
+func swap(a, b) {
+    return [b, a]
+}
+

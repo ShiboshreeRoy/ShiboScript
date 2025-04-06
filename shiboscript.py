@@ -13,6 +13,8 @@ import random
 import string
 import json
 import time
+import datetime
+
 
 # ANSI Color Codes
 class Colors:
@@ -26,133 +28,56 @@ class Colors:
     BOLD = '\033[1m'
     UNDERLINE = '\033[4m'
 
-# Helper Functions for Ethical Hacking Features
+# Helper Functions
 def http_get(url, headers=None, params=None):
-    """Send an HTTP GET request."""
     if params:
         url += '?' + urllib.parse.urlencode(params)
     req = urllib.request.Request(url, headers=headers or {})
     with urllib.request.urlopen(req) as response:
-        return {
-            'status': response.status,
-            'text': response.read().decode('utf-8')
-        }
+        return {'status': response.status, 'text': response.read().decode('utf-8')}
 
 def http_post(url, data, headers=None):
-    """Send an HTTP POST request with form data."""
     data = urllib.parse.urlencode(data).encode('utf-8')
     req = urllib.request.Request(url, data=data, headers=headers or {})
     with urllib.request.urlopen(req) as response:
-        return {
-            'status': response.status,
-            'text': response.read().decode('utf-8')
-        }
+        return {'status': response.status, 'text': response.read().decode('utf-8')}
 
-def base64_encode(s):
-    """Encode a string to base64."""
-    return base64.b64encode(s.encode('utf-8')).decode('utf-8')
-
-def base64_decode(s):
-    """Decode a base64 string."""
-    return base64.b64decode(s).decode('utf-8')
-
-def md5(s):
-    """Compute MD5 hash of a string."""
-    return hashlib.md5(s.encode('utf-8')).hexdigest()
-
-def sha1(s):
-    """Compute SHA1 hash of a string."""
-    return hashlib.sha1(s.encode('utf-8')).hexdigest()
-
-def sha256(s):
-    """Compute SHA256 hash of a string."""
-    return hashlib.sha256(s.encode('utf-8')).hexdigest()
-
+def base64_encode(s): return base64.b64encode(s.encode('utf-8')).decode('utf-8')
+def base64_decode(s): return base64.b64decode(s).decode('utf-8')
+def md5(s): return hashlib.md5(s.encode('utf-8')).hexdigest()
+def sha1(s): return hashlib.sha1(s.encode('utf-8')).hexdigest()
+def sha256(s): return hashlib.sha256(s.encode('utf-8')).hexdigest()
 def run_command(cmd):
-    """Run a shell command and return output."""
     result = subprocess.run(cmd, shell=True, capture_output=True, text=True)
-    return {
-        'stdout': result.stdout,
-        'stderr': result.stderr,
-        'returncode': result.returncode
-    }
-
-def get_env(var):
-    """Get an environment variable."""
-    return os.environ.get(var)
-
-def set_env(var, value):
-    """Set an environment variable."""
-    os.environ[var] = value
-
-def get_cwd():
-    """Get the current working directory."""
-    return os.getcwd()
-
-def change_dir(path):
-    """Change the current working directory."""
-    os.chdir(path)
-
-def list_dir(path):
-    """List files in a directory."""
-    return os.listdir(path)
-
-def exists(path):
-    """Check if a path exists."""
-    return os.path.exists(path)
-
-def random_int(min, max):
-    """Generate a random integer between min and max."""
-    return random.randint(min, max)
-
-def random_string(length):
-    """Generate a random alphanumeric string of specified length."""
-    return ''.join(random.choice(string.ascii_letters + string.digits) for _ in range(length))
-
+    return {'stdout': result.stdout, 'stderr': result.stderr, 'returncode': result.returncode}
+def get_env(var): return os.environ.get(var)
+def set_env(var, value): os.environ[var] = value
+def get_cwd(): return os.getcwd()
+def change_dir(path): os.chdir(path)
+def list_dir(path): return os.listdir(path)
+def exists(path): return os.path.exists(path)
+def random_int(min_val, max_val): return random.randint(min_val, max_val)
+def random_string(length): return ''.join(random.choice(string.ascii_letters + string.digits) for _ in range(length))
 def parse_url(url):
-    """Parse a URL into components."""
     parsed = urllib.parse.urlparse(url)
-    return {
-        'scheme': parsed.scheme,
-        'netloc': parsed.netloc,
-        'path': parsed.path,
-        'query': urllib.parse.parse_qs(parsed.query),
-        'fragment': parsed.fragment
-    }
-
-def url_encode(s):
-    """URL-encode a string."""
-    return urllib.parse.quote(s)
-
-def url_decode(s):
-    """URL-decode a string."""
-    return urllib.parse.unquote(s)
-
-def json_encode(obj):
-    """Convert an object to a JSON string."""
-    return json.dumps(obj)
-
-def json_decode(s):
-    """Parse a JSON string into an object."""
-    return json.loads(s)
-
-def time_now():
-    """Get the current time in seconds since epoch."""
-    return time.time()
-
-def time_sleep(seconds):
-    """Pause execution for a number of seconds."""
-    time.sleep(seconds)
+    return {'scheme': parsed.scheme, 'netloc': parsed.netloc, 'path': parsed.path, 'query': urllib.parse.parse_qs(parsed.query), 'fragment': parsed.fragment}
+def url_encode(s): return urllib.parse.quote(s)
+def url_decode(s): return urllib.parse.unquote(s)
+def json_encode(obj): return json.dumps(obj)
+def json_decode(s): return json.loads(s)
+def time_now(): return time.time()
+def time_sleep(seconds): time.sleep(seconds)
 
 # Token Types
 TOKENS = [
-    ('VAR', r'\bvar\b'), ('FUNC', r'\bfunc\b'), ('IF', r'\bif\b'), ('ELSE', r'\belse\b'),
+    ('IMPORT', r'\bimport\b'), ('FROM', r'\bfrom\b'), ('CLASS', r'\bclass\b'), ('INTERFACE', r'\binterface\b'),
+    ('IMPLEMENTS', r'\bimplements\b'), ('VAR', r'\bvar\b'), ('FUNC', r'\bfunc\b'), ('IF', r'\bif\b'), ('ELSE', r'\belse\b'),
     ('WHILE', r'\bwhile\b'), ('DO', r'\bdo\b'), ('FOR', r'\bfor\b'), ('IN', r'\bin\b'),
     ('BREAK', r'\bbreak\b'), ('CONTINUE', r'\bcontinue\b'), ('PRINT', r'\bprint\b'),
     ('RETURN', r'\breturn\b'), ('TRY', r'\btry\b'), ('CATCH', r'\bcatch\b'),
     ('TRUE', r'\btrue\b'), ('FALSE', r'\bfalse\b'), ('NULL', r'\bnull\b'),
-    ('NUMBER', r'\d+\.\d*|\.\d+|\d+'),  # Handles integers and floats
-    ('STRING', r'"[^"]*"'), ('IDENTIFIER', r'[a-zA-Z_]\w*'),
+    ('SET', r'\bset\b'),
+    ('NUMBER', r'\d+\.\d*|\.\d+|\d+'), ('STRING', r'"[^"]*"'), ('IDENTIFIER', r'[a-zA-Z_]\w*'),
     ('OPERATOR', r'[+\-*/%=<>!&|^~]|[<>=!]=|//|&&|\|\|'),
     ('LPAREN', r'\('), ('RPAREN', r'\)'), ('LBRACE', r'\{'), ('RBRACE', r'\}'),
     ('LBRACKET', r'\['), ('RBRACKET', r'\]'), ('COMMA', r','), ('COLON', r':'),
@@ -161,6 +86,10 @@ TOKENS = [
 
 # AST Nodes
 Program = namedtuple('Program', ['statements'])
+ImportStmt = namedtuple('ImportStmt', ['module'])
+FromImportStmt = namedtuple('FromImportStmt', ['module', 'names'])
+ClassDef = namedtuple('ClassDef', ['name', 'base', 'interfaces', 'body'])
+InterfaceDef = namedtuple('InterfaceDef', ['name', 'methods'])
 VarDecl = namedtuple('VarDecl', ['name', 'value'])
 FuncDef = namedtuple('FuncDef', ['name', 'params', 'body'])
 TryStmt = namedtuple('TryStmt', ['try_block', 'catch_var', 'catch_block'])
@@ -180,6 +109,7 @@ UnaryOp = namedtuple('UnaryOp', ['op', 'operand'])
 FuncCall = namedtuple('FuncCall', ['func_expr', 'args'])
 ListLiteral = namedtuple('ListLiteral', ['elements'])
 DictLiteral = namedtuple('DictLiteral', ['pairs'])
+SetLiteral = namedtuple('SetLiteral', ['elements'])
 Identifier = namedtuple('Identifier', ['name'])
 Number = namedtuple('Number', ['value'])
 String = namedtuple('String', ['value'])
@@ -200,7 +130,7 @@ class BreakException(Exception):
 class ContinueException(Exception):
     pass
 
-# Lexer with Line Tracking
+# Lexer
 class Lexer:
     def __init__(self, code):
         self.code = code
@@ -276,7 +206,15 @@ class Parser:
         token = self.current_token()
         if not token:
             return None
-        if token[0] == 'VAR':
+        if token[0] == 'IMPORT':
+            return self.parse_import_stmt()
+        elif token[0] == 'FROM':
+            return self.parse_from_import_stmt()
+        elif token[0] == 'CLASS':
+            return self.parse_class_def()
+        elif token[0] == 'INTERFACE':
+            return self.parse_interface_def()
+        elif token[0] == 'VAR':
             return self.parse_var_decl()
         elif token[0] == 'FUNC':
             return self.parse_func_def()
@@ -313,6 +251,81 @@ class Parser:
                 raise SyntaxError("Invalid assignment target")
             self.expect('SEMI', optional=True)
             return ExprStmt(expr)
+    
+    def parse_import_stmt(self):
+        self.advance()
+        module = self.current_token()[1]
+        self.advance()
+        self.expect('SEMI', optional=True)
+        return ImportStmt(module)
+    
+    def parse_from_import_stmt(self):
+        self.advance()
+        module = self.current_token()[1]
+        self.advance()
+        self.expect('IMPORT', 'import')
+        if self.current_token() and self.current_token()[0] == 'OPERATOR' and self.current_token()[1] == '*':
+            self.advance()
+            names = ['*']
+        else:
+            names = []
+            while self.current_token() and self.current_token()[0] == 'IDENTIFIER':
+                names.append(self.current_token()[1])
+                self.advance()
+                if self.current_token() and self.current_token()[0] == 'COMMA':
+                    self.advance()
+        self.expect('SEMI', optional=True)
+        return FromImportStmt(module, names)
+    
+    def parse_class_def(self):
+        self.advance()
+        name = self.current_token()[1]
+        self.advance()
+        base = None
+        interfaces = []
+        if self.current_token() and self.current_token()[0] == 'LPAREN':
+            self.advance()
+            base = self.current_token()[1]
+            self.advance()
+            self.expect('RPAREN', ')')
+        if self.current_token() and self.current_token()[0] == 'IMPLEMENTS':
+            self.advance()
+            while self.current_token() and self.current_token()[0] == 'IDENTIFIER':
+                interfaces.append(self.current_token()[1])
+                self.advance()
+                if self.current_token() and self.current_token()[0] == 'COMMA':
+                    self.advance()
+        self.expect('LBRACE', '{')
+        body = []
+        while self.current_token() and self.current_token()[0] != 'RBRACE':
+            stmt = self.parse_statement()
+            if stmt:
+                body.append(stmt)
+            while self.current_token() and self.current_token()[0] in ('NEWLINE', 'SEMI'):
+                self.advance()
+        self.expect('RBRACE', '}')
+        return ClassDef(name, base, interfaces, body)
+    
+    def parse_interface_def(self):
+        self.advance()
+        name = self.current_token()[1]
+        self.advance()
+        self.expect('LBRACE', '{')
+        methods = []
+        while self.current_token() and self.current_token()[0] != 'RBRACE':
+            if self.current_token()[0] == 'FUNC':
+                self.advance()
+                method_name = self.current_token()[1]
+                self.advance()
+                self.expect('LPAREN', '(')
+                params = self.parse_param_list()
+                self.expect('RPAREN', ')')
+                self.expect('SEMI', optional=True)
+                methods.append((method_name, params))
+            else:
+                self.advance()
+        self.expect('RBRACE', '}')
+        return InterfaceDef(name, methods)
     
     def parse_var_decl(self):
         self.advance()
@@ -561,12 +574,7 @@ class Parser:
         elif token[0] == 'NUMBER':
             self.advance()
             num_str = token[1]
-            if '.' in num_str:
-                if num_str.endswith('.'):
-                    num_str += '0'
-                expr = Number(float(num_str))
-            else:
-                expr = Number(int(num_str))
+            expr = Number(float(num_str) if '.' in num_str else int(num_str))
         elif token[0] == 'STRING':
             self.advance()
             expr = String(token[1][1:-1])
@@ -587,6 +595,17 @@ class Parser:
             expr = self.parse_list_literal()
         elif token[0] == 'LBRACE':
             expr = self.parse_dict_literal()
+        elif token[0] == 'SET':
+            self.advance()
+            self.expect('LPAREN', '(')
+            elements = []
+            if self.current_token() and self.current_token()[0] != 'RPAREN':
+                elements.append(self.parse_expression())
+                while self.current_token() and self.current_token()[0] == 'COMMA':
+                    self.advance()
+                    elements.append(self.parse_expression())
+            self.expect('RPAREN', ')')
+            expr = SetLiteral(elements)
         else:
             raise SyntaxError(f"Line {token[2]}: Unexpected token: {token}")
         
@@ -649,11 +668,44 @@ class Parser:
         self.expect('RBRACE', '}')
         return DictLiteral(pairs)
 
+# Class Object
+class ShiboClass:
+    def __init__(self, name, base, interfaces, env, methods, attributes):
+        self.name = name
+        self.base = base
+        self.interfaces = interfaces
+        self.env = env
+        self.methods = methods
+        self.attributes = attributes
+    
+    def instantiate(self, interpreter, args):
+        instance = ShiboInstance(self, interpreter)
+        if 'init' in self.methods:
+            method = self.methods['init']
+            if len(args) != len(method.params) - 1:  # -1 for 'self'
+                raise TypeError(f"Expected {len(method.params) - 1} arguments, got {len(args)}")
+            local_env = {'self': instance}
+            local_env.update({param: arg for param, arg in zip(method.params[1:], args)})
+            try:
+                interpreter.eval(Program(method.body), local_env)
+            except ReturnException:
+                pass  # init doesn't return anything
+        return instance
+
+class ShiboInstance:
+    def __init__(self, cls, interpreter):
+        self.cls = cls
+        self.env = {}
+        self.env.update(cls.attributes)
+        if cls.base:
+            base_cls = interpreter.env.get(cls.base)
+            if base_cls and isinstance(base_cls, ShiboClass):
+                self.env.update(base_cls.attributes)
+
 # Interpreter
 class Interpreter:
     def __init__(self):
         self.env = {
-            # Existing List/Dict/String Functions
             'append': lambda lst, val: lst.append(val) or lst,
             'remove': lambda lst, val: lst.remove(val) or lst,
             'pop': lambda lst, idx=None: lst.pop(idx if idx is not None else -1),
@@ -670,114 +722,85 @@ class Interpreter:
             'upper': lambda s: s.upper(),
             'lower': lambda s: s.lower(),
             'split': lambda s, sep=None: s.split(sep),
-            # Math Namespace
-            'math': {
-                'sqrt': math.sqrt,
-                'sin': math.sin,
-                'cos': math.cos,
-                'pi': math.pi,
-                'pow': math.pow,
-                'exp': math.exp,
-            },
-            # Image Namespace
-            'image': {
-                'load': lambda path: Image.open(path),
-                'show': lambda img: img.show() or None,
-            },
-            # File Namespace
-            'file': {
-                'read': lambda path: open(path, 'r').read(),
-                'write': lambda path, content: open(path, 'w').write(content) or None,
-            },
-            # Network Namespace
-            'net': {
-                'http_get': http_get,
-                'http_post': http_post,
-            },
-            # Cryptography Namespace
-            'crypto': {
-                'md5': md5,
-                'sha1': sha1,
-                'sha256': sha256,
-            },
-            # OS/System Namespace
-            'os': {
-                'get_env': get_env,
-                'set_env': set_env,
-                'get_cwd': get_cwd,
-                'change_dir': change_dir,
-                'list_dir': list_dir,
-                'exists': exists,
-                'run_command': run_command,
-            },
-            # Random Namespace
-            'random': {
-                'int': random_int,
-                'string': random_string,
-            },
-            # URL Namespace
-            'url': {
-                'parse': parse_url,
-                'encode': url_encode,
-                'decode': url_decode,
-            },
-            # Base64 Namespace
-            'base64': {
-                'encode': base64_encode,
-                'decode': base64_decode,
-            },
-            # Regular Expression Namespace
-            're': {
-                'search': lambda pattern, string: re.search(pattern, string).groups() if re.search(pattern, string) else None,
-                'match': lambda pattern, string: re.match(pattern, string).groups() if re.match(pattern, string) else None,
-                'findall': lambda pattern, string: re.findall(pattern, string),
-            },
-            # JSON Namespace
-            'json': {
-                'encode': json_encode,
-                'decode': json_decode,
-            },
-            # Time Namespace
-            'time': {
-                'now': time_now,
-                'sleep': time_sleep,
+            'math': {'sqrt': math.sqrt, 'sin': math.sin, 'cos': math.cos, 'pi': math.pi, 'pow': math.pow, 'exp': math.exp},
+            'image': {'load': lambda path: Image.open(path), 'show': lambda img: img.show() or None},
+            'file': {'read': lambda path: open(path, 'r').read(), 'write': lambda path, content: open(path, 'w').write(content) or None},
+            'net': {'http_get': http_get, 'http_post': http_post},
+            'crypto': {'md5': md5, 'sha1': sha1, 'sha256': sha256},
+            'os': {'get_env': get_env, 'set_env': set_env, 'get_cwd': get_cwd, 'change_dir': change_dir, 'list_dir': list_dir, 'exists': exists, 'run_command': run_command},
+            'random': {'int': random_int, 'string': random_string},
+            'url': {'parse': parse_url, 'encode': url_encode, 'decode': url_decode},
+            'base64': {'encode': base64_encode, 'decode': base64_decode},
+            're': {'search': lambda pattern, string: re.search(pattern, string).groups() if re.search(pattern, string) else None,
+                   'match': lambda pattern, string: re.match(pattern, string).groups() if re.match(pattern, string) else None,
+                   'findall': lambda pattern, string: re.findall(pattern, string)},
+            'json': {'encode': json_encode, 'decode': json_decode},
+            'time': {'now': time_now, 'sleep': time_sleep},
+            'min': min,
+            'max': max,
+            'sum': sum,
+            'abs': abs,
+            'round': round,
+            'set_union': lambda s1, s2: s1.union(s2),
+            'set_intersection': lambda s1, s2: s1.intersection(s2),
+            'set_difference': lambda s1, s2: s1.difference(s2),
+            'set_symmetric_difference': lambda s1, s2: s1.symmetric_difference(s2),
+            'set_add': lambda s, elem: s.add(elem) or s,
+            'set_remove': lambda s, elem: s.remove(elem) or s,
+            'datetime': {
+                'now': datetime.datetime.now,
+                'strftime': lambda dt, fmt: dt.strftime(fmt),
+                'strptime': lambda s, fmt: datetime.datetime.strptime(s, fmt),
+                'date': datetime.date,
+                'time': datetime.time,
+                'timedelta': datetime.timedelta,
             },
         }
         self.loop_depth = 0
+        self.modules = {}
     
-    def eval(self, node):
+    def eval(self, node, env=None):
+        env = env if env is not None else self.env
         if isinstance(node, Program):
-            return self.eval_program(node)
+            return self.eval_program(node, env)
+        elif isinstance(node, ImportStmt):
+            return self.eval_import_stmt(node, env)
+        elif isinstance(node, FromImportStmt):
+            return self.eval_from_import_stmt(node, env)
+        elif isinstance(node, ClassDef):
+            return self.eval_class_def(node, env)
+        elif isinstance(node, InterfaceDef):
+            return self.eval_interface_def(node, env)
         elif isinstance(node, VarDecl):
-            return self.eval_var_decl(node)
+            return self.eval_var_decl(node, env)
         elif isinstance(node, FuncDef):
-            return self.eval_func_def(node)
+            return self.eval_func_def(node, env)
         elif isinstance(node, TryStmt):
-            return self.eval_try_stmt(node)
+            return self.eval_try_stmt(node, env)
         elif isinstance(node, AssignStmt):
-            return self.eval_assign_stmt(node)
+            return self.eval_assign_stmt(node, env)
         elif isinstance(node, IfStmt):
-            return self.eval_if_stmt(node)
+            return self.eval_if_stmt(node, env)
         elif isinstance(node, WhileStmt):
-            return self.eval_while_stmt(node)
+            return self.eval_while_stmt(node, env)
         elif isinstance(node, DoWhileStmt):
-            return self.eval_do_while_stmt(node)
+            return self.eval_do_while_stmt(node, env)
         elif isinstance(node, ForStmt):
-            return self.eval_for_stmt(node)
+            return self.eval_for_stmt(node, env)
         elif isinstance(node, ForInStmt):
-            return self.eval_for_in_stmt(node)
+            return self.eval_for_in_stmt(node, env)
         elif isinstance(node, BreakStmt):
             return self.eval_break_stmt()
         elif isinstance(node, ContinueStmt):
             return self.eval_continue_stmt()
         elif isinstance(node, PrintStmt):
-            return self.eval_print_stmt(node)
+            return self.eval_print_stmt(node, env)
         elif isinstance(node, ReturnStmt):
-            return self.eval_return_stmt(node)
+            return self.eval_return_stmt(node, env)
         elif isinstance(node, ExprStmt):
-            return self.eval_expr_stmt(node)
+            return self.eval_expr_stmt(node, env)
         elif isinstance(node, Identifier):
-            return self.env.get(node.name, None)
+            return env.get(node.name, self.env.get(node.name))
         elif isinstance(node, Number):
             return node.value
         elif isinstance(node, String):
@@ -787,60 +810,108 @@ class Interpreter:
         elif isinstance(node, Null):
             return None
         elif isinstance(node, ListLiteral):
-            return [self.eval(e) for e in node.elements]
+            return [self.eval(e, env) for e in node.elements]
         elif isinstance(node, DictLiteral):
-            return {self.eval(k): self.eval(v) for k, v in node.pairs}
+            return {self.eval(k, env): self.eval(v, env) for k, v in node.pairs}
+        elif isinstance(node, SetLiteral):
+            return set(self.eval(e, env) for e in node.elements)
         elif isinstance(node, BinaryOp):
-            return self.eval_binary_op(node)
+            return self.eval_binary_op(node, env)
         elif isinstance(node, UnaryOp):
-            return self.eval_unary_op(node)
+            return self.eval_unary_op(node, env)
         elif isinstance(node, FuncCall):
-            return self.eval_func_call(node)
+            return self.eval_func_call(node, env)
         elif isinstance(node, IndexExpr):
-            return self.eval_index_expr(node)
+            return self.eval_index_expr(node, env)
         elif isinstance(node, AttributeExpr):
-            obj = self.eval(node.object)
-            if isinstance(obj, dict):
-                if node.attribute in obj:
-                    return obj[node.attribute]
-                try:
-                    return getattr(obj, node.attribute)
-                except AttributeError:
-                    raise AttributeError(f"Dictionary has no key or attribute '{node.attribute}'")
-            try:
-                return getattr(obj, node.attribute)
-            except AttributeError:
-                raise AttributeError(f"{type(obj).__name__} has no attribute '{node.attribute}'")
+            return self.eval_attribute_expr(node, env)
     
-    def eval_program(self, node):
+    def eval_program(self, node, env):
         result = None
         for stmt in node.statements:
-            result = self.eval(stmt)
+            result = self.eval(stmt, env)
         return result
     
-    def eval_var_decl(self, node):
-        value = self.eval(node.value)
-        self.env[node.name] = value
+    def eval_import_stmt(self, node, env):
+        if node.module not in self.modules:
+            try:
+                with open(f"{node.module}.shibo", 'r') as f:
+                    code = f.read()
+                lexer = Lexer(code)
+                tokens = lexer.tokenize()
+                parser = Parser(tokens)
+                ast = parser.parse()
+                module_env = {}
+                self.eval(ast, module_env)
+                self.modules[node.module] = module_env
+            except FileNotFoundError:
+                raise ImportError(f"Module '{node.module}' not found")
+        env.update(self.modules[node.module])
         return None
     
-    def eval_func_def(self, node):
-        self.env[node.name] = node
+    def eval_from_import_stmt(self, node, env):
+        if node.module not in self.modules:
+            try:
+                with open(f"{node.module}.shibo", 'r') as f:
+                    code = f.read()
+                lexer = Lexer(code)
+                tokens = lexer.tokenize()
+                parser = Parser(tokens)
+                ast = parser.parse()
+                module_env = {}
+                self.eval(ast, module_env)
+                self.modules[node.module] = module_env
+            except FileNotFoundError:
+                raise ImportError(f"Module '{node.module}' not found")
+        if node.names == ['*']:
+            env.update(self.modules[node.module])
+        else:
+            for name in node.names:
+                if name in self.modules[node.module]:
+                    env[name] = self.modules[node.module][name]
+                else:
+                    raise ImportError(f"'{name}' not found in module '{node.module}'")
         return None
     
-    def eval_try_stmt(self, node):
+    def eval_class_def(self, node, env):
+        methods = {}
+        attributes = {}
+        for stmt in node.body:
+            if isinstance(stmt, FuncDef):
+                methods[stmt.name] = stmt
+            elif isinstance(stmt, VarDecl):
+                attributes[stmt.name] = self.eval(stmt.value, env)
+        cls = ShiboClass(node.name, node.base, node.interfaces, env, methods, attributes)
+        env[node.name] = cls
+        return None
+    
+    def eval_interface_def(self, node, env):
+        env[node.name] = {'type': 'interface', 'methods': {name: params for name, params in node.methods}}
+        return None
+    
+    def eval_var_decl(self, node, env):
+        value = self.eval(node.value, env)
+        env[node.name] = value
+        return None
+    
+    def eval_func_def(self, node, env):
+        env[node.name] = node
+        return None
+    
+    def eval_try_stmt(self, node, env):
         try:
-            return self.eval_program(Program(node.try_block))
+            return self.eval_program(Program(node.try_block), env)
         except Exception as e:
-            self.env[node.catch_var] = str(e)
-            return self.eval_program(Program(node.catch_block))
+            env[node.catch_var] = str(e)
+            return self.eval_program(Program(node.catch_block), env)
     
-    def eval_assign_stmt(self, node):
-        value = self.eval(node.value)
+    def eval_assign_stmt(self, node, env):
+        value = self.eval(node.value, env)
         if isinstance(node.target, Identifier):
-            self.env[node.target.name] = value
+            env[node.target.name] = value
         elif isinstance(node.target, IndexExpr):
-            obj = self.eval(node.target.object)
-            index = self.eval(node.target.index)
+            obj = self.eval(node.target.object, env)
+            index = self.eval(node.target.index, env)
             if isinstance(obj, list):
                 obj[index] = value
             elif isinstance(obj, dict):
@@ -848,8 +919,10 @@ class Interpreter:
             else:
                 raise TypeError("Cannot assign to non-list or non-dict")
         elif isinstance(node.target, AttributeExpr):
-            obj = self.eval(node.target.object)
-            if isinstance(obj, dict):
+            obj = self.eval(node.target.object, env)
+            if isinstance(obj, ShiboInstance):
+                obj.env[node.target.attribute] = value
+            elif isinstance(obj, dict):
                 obj[node.target.attribute] = value
             else:
                 try:
@@ -858,19 +931,19 @@ class Interpreter:
                     raise TypeError(f"Cannot set attribute '{node.target.attribute}' on {type(obj).__name__}")
         return None
     
-    def eval_if_stmt(self, node):
-        condition = self.eval(node.condition)
+    def eval_if_stmt(self, node, env):
+        condition = self.eval(node.condition, env)
         if condition:
-            return self.eval_program(Program(node.then_branch))
+            return self.eval_program(Program(node.then_branch), env)
         elif node.else_branch:
-            return self.eval_program(Program(node.else_branch))
+            return self.eval_program(Program(node.else_branch), env)
         return None
     
-    def eval_while_stmt(self, node):
+    def eval_while_stmt(self, node, env):
         self.loop_depth += 1
-        while self.eval(node.condition):
+        while self.eval(node.condition, env):
             try:
-                self.eval_program(Program(node.body))
+                self.eval_program(Program(node.body), env)
             except ContinueException:
                 continue
             except BreakException:
@@ -878,43 +951,43 @@ class Interpreter:
         self.loop_depth -= 1
         return None
     
-    def eval_do_while_stmt(self, node):
+    def eval_do_while_stmt(self, node, env):
         self.loop_depth += 1
         while True:
             try:
-                self.eval_program(Program(node.body))
+                self.eval_program(Program(node.body), env)
             except ContinueException:
                 continue
             except BreakException:
                 break
-            if not self.eval(node.condition):
+            if not self.eval(node.condition, env):
                 break
         self.loop_depth -= 1
         return None
     
-    def eval_for_stmt(self, node):
+    def eval_for_stmt(self, node, env):
         self.loop_depth += 1
         if node.init:
-            self.eval(node.init)
-        while node.condition is None or self.eval(node.condition):
+            self.eval(node.init, env)
+        while node.condition is None or self.eval(node.condition, env):
             try:
-                self.eval_program(Program(node.body))
+                self.eval_program(Program(node.body), env)
             except ContinueException:
                 pass
             except BreakException:
                 break
             if node.increment:
-                self.eval(node.increment)
+                self.eval(node.increment, env)
         self.loop_depth -= 1
         return None
     
-    def eval_for_in_stmt(self, node):
+    def eval_for_in_stmt(self, node, env):
         self.loop_depth += 1
-        iterable = self.eval(node.iterable)
+        iterable = self.eval(node.iterable, env)
         for item in iterable:
             try:
-                self.env[node.var] = item
-                self.eval_program(Program(node.body))
+                env[node.var] = item
+                self.eval_program(Program(node.body), env)
             except ContinueException:
                 continue
             except BreakException:
@@ -932,25 +1005,25 @@ class Interpreter:
             raise SyntaxError("continue outside loop")
         raise ContinueException()
     
-    def eval_print_stmt(self, node):
-        value = self.eval(node.expression)
+    def eval_print_stmt(self, node, env):
+        value = self.eval(node.expression, env)
         print(value)
         return None
     
-    def eval_return_stmt(self, node):
-        value = self.eval(node.expression) if node.expression else None
+    def eval_return_stmt(self, node, env):
+        value = self.eval(node.expression, env) if node.expression else None
         raise ReturnException(value)
     
-    def eval_expr_stmt(self, node):
-        return self.eval(node.expression)
+    def eval_expr_stmt(self, node, env):
+        return self.eval(node.expression, env)
     
-    def eval_binary_op(self, node):
-        left = self.eval(node.left)
+    def eval_binary_op(self, node, env):
+        left = self.eval(node.left, env)
         if node.op == '&&':
-            return left and self.eval(node.right)
+            return left and self.eval(node.right, env)
         elif node.op == '||':
-            return left or self.eval(node.right)
-        right = self.eval(node.right)
+            return left or self.eval(node.right, env)
+        right = self.eval(node.right, env)
         if node.op == '+':
             if isinstance(left, str) or isinstance(right, str):
                 return str(left) + str(right)
@@ -976,37 +1049,53 @@ class Interpreter:
         elif node.op == '>=':
             return left >= right
     
-    def eval_unary_op(self, node):
-        operand = self.eval(node.operand)
+    def eval_unary_op(self, node, env):
+        operand = self.eval(node.operand, env)
         if node.op == '-':
             return -operand
         elif node.op == '!':
             return not operand
     
-    def eval_func_call(self, node):
-        func = self.eval(node.func_expr)
-        if func is None:
-            raise NameError(f"Function not defined")
-        args = [self.eval(arg) for arg in node.args]
-        if isinstance(func, FuncDef):
+    def eval_func_call(self, node, env, instance_env=None):
+        func = self.eval(node.func_expr, env)
+        args = [self.eval(arg, env) for arg in node.args]
+        if isinstance(func, tuple) and len(func) == 2 and isinstance(func[0], FuncDef) and isinstance(func[1], ShiboInstance):
+            method, instance = func
+            if len(args) != len(method.params) - 1:  # -1 for 'self'
+                raise TypeError(f"Expected {len(method.params) - 1} arguments, got {len(args)}")
+            local_env = {'self': instance}
+            local_env.update({param: arg for param, arg in zip(method.params[1:], args)})
+            interpreter = Interpreter()
+            interpreter.env.update(self.env)
+            interpreter.env.update(local_env)
+            try:
+                interpreter.eval(Program(method.body))
+            except ReturnException as e:
+                return e.value
+            return None
+        elif isinstance(func, FuncDef):
             if len(args) != len(func.params):
                 raise TypeError(f"Expected {len(func.params)} arguments, got {len(args)}")
             local_env = {param: arg for param, arg in zip(func.params, args)}
             interpreter = Interpreter()
             interpreter.env.update(self.env)
+            if instance_env:
+                local_env.update(instance_env)
             interpreter.env.update(local_env)
             try:
                 interpreter.eval(Program(func.body))
             except ReturnException as e:
                 return e.value
             return None
+        elif isinstance(func, ShiboClass):
+            return func.instantiate(self, args)
         elif callable(func):
             return func(*args)
-        raise TypeError("Not a function")
+        raise TypeError(f"'{type(func).__name__}' is not callable")
     
-    def eval_index_expr(self, node):
-        obj = self.eval(node.object)
-        index = self.eval(node.index)
+    def eval_index_expr(self, node, env):
+        obj = self.eval(node.object, env)
+        index = self.eval(node.index, env)
         if isinstance(index, Slice):
             start = index.start if index.start is not None else 0
             end = index.end if index.end is not None else len(obj)
@@ -1018,16 +1107,63 @@ class Interpreter:
         elif isinstance(obj, dict):
             return obj.get(index, None)
         raise TypeError("Cannot index non-list or non-dict")
+    
+    def eval_attribute_expr(self, node, env):
+        obj = self.eval(node.object, env)
+        if isinstance(obj, ShiboInstance):
+            if node.attribute in obj.env:
+                return obj.env[node.attribute]
+            elif node.attribute in obj.cls.methods:
+                return (obj.cls.methods[node.attribute], obj)
+            else:
+                base_cls = obj.cls.base
+                while base_cls:
+                    base_cls_obj = self.env.get(base_cls)
+                    if base_cls_obj and isinstance(base_cls_obj, ShiboClass):
+                        if node.attribute in base_cls_obj.methods:
+                            return (base_cls_obj.methods[node.attribute], obj)
+                        base_cls = base_cls_obj.base
+                    else:
+                        break
+                raise AttributeError(f"'{obj.cls.name}' instance has no attribute '{node.attribute}'")
+        elif isinstance(obj, ShiboClass):
+            if node.attribute in obj.methods:
+                return obj.methods[node.attribute]
+            else:
+                raise AttributeError(f"Class '{obj.name}' has no method '{node.attribute}'")
+        elif isinstance(obj, dict):
+            if node.attribute in obj:
+                return obj[node.attribute]
+            try:
+                return getattr(obj, node.attribute)
+            except AttributeError:
+                raise AttributeError(f"Dictionary has no key or attribute '{node.attribute}'")
+        try:
+            return getattr(obj, node.attribute)
+        except AttributeError:
+            raise AttributeError(f"'{type(obj).__name__}' has no attribute '{node.attribute}'")
 
-# REPL with Color and Multi-Line Support
+# Enhanced REPL
 def repl():
     interpreter = Interpreter()
-    print(f"{Colors.OKCYAN}Welcome to ShiboScript REPL! Type 'exit' to quit.{Colors.ENDC}")
+    __version__ = "0.2.1"
+    ICON = "🐕"
+    print(f"{Colors.OKCYAN}{ICON} Welcome to ShiboScript v{__version__} REPL! Type 'exit' to quit, 'help' for help.{Colors.ENDC}")
+
     while True:
         try:
             code = input(f"{Colors.OKGREEN}shiboscript>>> {Colors.ENDC}")
             if code.strip() == "exit":
                 break
+            if code.strip() in ('cls', 'clear'):
+                os.system('cls' if os.name == 'nt' else 'clear')
+                continue
+            if code.strip() == "help":
+                print("Available built-ins:")
+                for key in sorted(interpreter.env.keys()):
+                    if not key.startswith('_'):
+                        print(f" - {key}")
+                continue
             while True:
                 try:
                     lexer = Lexer(code)
@@ -1036,7 +1172,7 @@ def repl():
                     ast = parser.parse()
                     break
                 except SyntaxError as e:
-                    print(f"{Colors.FAIL}{e}{Colors.ENDC}")
+                    print(f"{Colors.FAIL}Syntax Error: {e}{Colors.ENDC}")
                     next_line = input(f"{Colors.WARNING}... {Colors.ENDC}")
                     if next_line.strip() == "":
                         raise
@@ -1044,6 +1180,12 @@ def repl():
             result = interpreter.eval(ast)
             if result is not None:
                 print(f"{Colors.OKBLUE}{result}{Colors.ENDC}")
+        except SyntaxError as e:
+            print(f"{Colors.FAIL}Syntax Error: {e}{Colors.ENDC}")
+        except NameError as e:
+            print(f"{Colors.FAIL}Name Error: {e}{Colors.ENDC}")
+        except TypeError as e:
+            print(f"{Colors.FAIL}Type Error: {e}{Colors.ENDC}")
         except Exception as e:
             print(f"{Colors.FAIL}Error: {e}{Colors.ENDC}")
 

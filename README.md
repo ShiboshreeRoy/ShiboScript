@@ -52,9 +52,14 @@ function function_Name(Argument or Without Argument) {
 ```ShiboScript 
 print("Hello World !");
 ```
+## Single Line Commment
+```shiboscript
+# This is a single line comment
+```
 ## Input 
 ```ShiboScript
-var x = input("Enter a number: ");
+#integer input
+var x =int(input("Enter a number: "));
 Enter a number: 25
 print(math.sqrt(x));
 5.0
@@ -116,18 +121,18 @@ func add(a, b) {
     return a + b;
 }
 var sum = add(3, 4);
-print(sum);  // Output: 7
+print(sum);  # Output: 7
 ```
 ### Arrays
 ```shiboscript
 var arr = [1, 2, 3];
 arr[0] = 10;
-append(arr, 4); //append 4 to the end of the array
-print(arr);  // Output: [10, 2, 3, 4,];
-remove(arr, 2); // remmove  element from array
-[10, 3, 4] //output
-pop(arr, 0) // remove first element from array
-[3, 4] //output
+append(arr, 4); #append 4 to the end of the array
+print(arr);  # Output: [10, 2, 3, 4,];
+remove(arr, 2); # remmove  element from array
+[10, 3, 4] #output
+pop(arr, 0) # remove first element from array
+[3, 4] #output
 
 ```
 ### Array Example 
@@ -183,24 +188,24 @@ After pop:
 ```shiboscript
 var d = {"a": 1, "b": 2}
 d["a"]
-1 //output
-d["c"] = 3 // add new key-value pair
-d["c"] //output 3
-keys(d) //output ["a", "b", "c"]
+1 #output
+d["c"] = 3 # add new key-value pair
+d["c"] #output 3
+keys(d) #output ["a", "b", "c"]
 ```
 
 ###  Types and Functions
 ```shiboscript
 var b = true;
 print(b);
-True // Output
+True #Output
 print(type(b));
-bool //Output
+bool #Output
 var n = null;
 print(n);
-None //Output
+None #Output
 print(str(123));
-123//Output
+123 #Output
 ```
 ## Type Casting
 ```shiboscript
@@ -245,6 +250,109 @@ print(len(s));          # 11
 - **File I/O:** `read_file("file.txt")`, `write_file("file.txt", "content")`
 - **String Manipulation:** `str_upper("hello")`, `str_split("a,b", ",")`
 - **Image Handling:** `load_image("img.png")`, `show_image(img)`
+## Support  Oop Functionality
+shiboscript supports object-oriented programming (OOP) concepts like classes, inheritance, polymorphism, encapsulation,
+and abstraction. Here's an example of a simple class definition and usage:
+## Laibray import
+shiboscript has a built-in library system that allows you to import and use external libraries. You can use the
+`import` statement to import libraries and their functions. For example:
+
+### mini library uitils
+```shiboscript
+var VERSION = "1.0"
+
+# add number
+
+func add(a, b) {
+    return a + b
+}
+
+# multiply number
+
+func multiply(a, b) {
+    return a * b
+}
+
+# substruct number
+func substruct(a, b) {
+    return a - b
+}
+
+# divaided number
+func divaided(a, b) {
+    return a / b
+}
+
+# parcent number
+func parcent(a, b) {
+    return (a / b) * 100
+}
+
+# swap number
+func swap(a, b) {
+    return [b, a]
+}
+
+```
+## Importing Libraries and  uses
+```shiboscript
+from  utils import swap
+print(swap(5, 3))
+#before 5,3
+#after 3,5
+```
+## Class and  Inheritance Example 
+```shiboscript
+# Define the base class Animal
+class Animal {
+    func init(self, name) {
+        self.name = name
+    }
+    func make_sound(self) {
+        print("Some generic animal sound")
+    }
+    func sleep(self) {
+        print(self.name + " is sleeping")
+    }
+}
+
+# Define the Dog class, inheriting from Animal
+class Dog(Animal) {
+    func init(self, name, breed) {
+        Animal.init(self, name)
+        self.breed = breed
+    }
+    func make_sound(self) {
+        print("Woof!")
+    }
+}
+
+# Define the Cat class, inheriting from Animal
+class Cat(Animal) {
+    func init(self, name, color) {
+        Animal.init(self, name)
+        self.color = color
+    }
+    func make_sound(self) {
+        print("Meow!")
+    }
+}
+
+# Create instances of Dog and Cat
+var my_dog = Dog("Buddy", "Golden Retriever")
+var my_cat = Cat("Whiskers", "Black")
+
+# Demonstrate inheritance and method overriding
+print(my_dog.name)       # Outputs: "Buddy"
+print(my_dog.breed)      # Outputs: "Golden Retriever"
+my_dog.make_sound()      # Outputs: "Woof!"
+my_dog.sleep()           # Outputs: "Buddy is sleeping"
+
+print(my_cat.name)       # Outputs: "Whiskers"
+print(my_cat.color)      # Outputs: "Black"
+my_cat.make_sound()      # Outputs: "Meow!"
+my_cat.sleep()           # Outputs: "Whiskers is sleeping"
+``` 
 
 ## Error Hendling
 ```shiboscript
