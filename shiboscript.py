@@ -15,7 +15,6 @@ import json
 import time
 import datetime
 
-
 # ANSI Color Codes
 class Colors:
     HEADER = '\033[95m'
@@ -69,6 +68,7 @@ def time_now(): return time.time()
 def time_sleep(seconds): time.sleep(seconds)
 
 # Token Types
+operator_pattern = r'>>>=|>>>|<<=|<<|>>=|>>|\+=|-=|\*=|/=|%=|&=|\|=|\^=|\+\+|--|==|!=|<=|>=|&&|\|\||//|[+\-*/%=<>!&|^~?:]'
 TOKENS = [
     ('IMPORT', r'\bimport\b'), ('FROM', r'\bfrom\b'), ('CLASS', r'\bclass\b'), ('INTERFACE', r'\binterface\b'),
     ('IMPLEMENTS', r'\bimplements\b'), ('VAR', r'\bvar\b'), ('FUNC', r'\bfunc\b'), ('IF', r'\bif\b'), ('ELSE', r'\belse\b'),
@@ -77,8 +77,9 @@ TOKENS = [
     ('RETURN', r'\breturn\b'), ('TRY', r'\btry\b'), ('CATCH', r'\bcatch\b'),
     ('TRUE', r'\btrue\b'), ('FALSE', r'\bfalse\b'), ('NULL', r'\bnull\b'),
     ('SET', r'\bset\b'),
+    ('INSTANCEOF', r'\binstanceof\b'),
     ('NUMBER', r'\d+\.\d*|\.\d+|\d+'), ('STRING', r'"[^"]*"'), ('IDENTIFIER', r'[a-zA-Z_]\w*'),
-    ('OPERATOR', r'[+\-*/%=<>!&|^~]|[<>=!]=|//|&&|\|\|'),
+    ('OPERATOR', operator_pattern),
     ('LPAREN', r'\('), ('RPAREN', r'\)'), ('LBRACE', r'\{'), ('RBRACE', r'\}'),
     ('LBRACKET', r'\['), ('RBRACKET', r'\]'), ('COMMA', r','), ('COLON', r':'),
     ('SEMI', r';'), ('DOT', r'\.'), ('NEWLINE', r'\n'),
@@ -106,6 +107,9 @@ ExprStmt = namedtuple('ExprStmt', ['expression'])
 AssignStmt = namedtuple('AssignStmt', ['target', 'value'])
 BinaryOp = namedtuple('BinaryOp', ['left', 'op', 'right'])
 UnaryOp = namedtuple('UnaryOp', ['op', 'operand'])
+PrefixOp = namedtuple('PrefixOp', ['op', 'operand'])
+PostfixOp = namedtuple('PostfixOp', ['operand', 'op'])
+TernaryOp = namedtuple('TernaryOp', ['condition', 'true_expr', 'false_expr'])
 FuncCall = namedtuple('FuncCall', ['func_expr', 'args'])
 ListLiteral = namedtuple('ListLiteral', ['elements'])
 DictLiteral = namedtuple('DictLiteral', ['pairs'])
@@ -242,12 +246,16 @@ class Parser:
             return self.parse_return_stmt()
         else:
             expr = self.parse_expression()
-            if self.current_token() and self.current_token()[0] == 'OPERATOR' and self.current_token()[1] == '=':
+            if self.current_token() and self.current_token()[0] == 'OPERATOR' and self.current_token()[1] in ('=', '+=', '-=', '*=', '/=', '%=', '&=', '|=', '^=', '<<=', '>>=', '>>>='):
+                op = self.current_token()[1]
                 self.advance()
                 value = self.parse_expression()
                 if isinstance(expr, (Identifier, IndexExpr, AttributeExpr)):
-                    self.expect('SEMI', optional=True)
-                    return AssignStmt(expr, value)
+                    if op == '=':
+                        return AssignStmt(expr, value)
+                    else:
+                        base_op = op[:-1]
+                        return AssignStmt(expr, BinaryOp(expr, base_op, value))
                 raise SyntaxError("Invalid assignment target")
             self.expect('SEMI', optional=True)
             return ExprStmt(expr)
@@ -509,7 +517,14 @@ class Parser:
         return ReturnStmt(expr)
     
     def parse_expression(self):
-        return self.parse_logical_or()
+        expr = self.parse_logical_or()
+        if self.current_token() and self.current_token()[0] == 'OPERATOR' and self.current_token()[1] == '?':
+            self.advance()
+            true_expr = self.parse_expression()
+            self.expect('OPERATOR', ':')
+            false_expr = self.parse_expression()
+            expr = TernaryOp(expr, true_expr, false_expr)
+        return expr
     
     def parse_logical_or(self):
         left = self.parse_logical_and()
@@ -521,17 +536,65 @@ class Parser:
         return left
     
     def parse_logical_and(self):
-        left = self.parse_comparison()
+        left = self.parse_bitwise_or()
         while self.current_token() and self.current_token()[0] == 'OPERATOR' and self.current_token()[1] == '&&':
             op = self.current_token()[1]
             self.advance()
-            right = self.parse_comparison()
+            right = self.parse_bitwise_or()
             left = BinaryOp(left, op, right)
         return left
     
-    def parse_comparison(self):
+    def parse_bitwise_or(self):
+        left = self.parse_bitwise_xor()
+        while self.current_token() and self.current_token()[0] == 'OPERATOR' and self.current_token()[1] == '|':
+            op = self.current_token()[1]
+            self.advance()
+            right = self.parse_bitwise_xor()
+            left = BinaryOp(left, op, right)
+        return left
+    
+    def parse_bitwise_xor(self):
+        left = self.parse_bitwise_and()
+        while self.current_token() and self.current_token()[0] == 'OPERATOR' and self.current_token()[1] == '^':
+            op = self.current_token()[1]
+            self.advance()
+            right = self.parse_bitwise_and()
+            left = BinaryOp(left, op, right)
+        return left
+    
+    def parse_bitwise_and(self):
+        left = self.parse_equality()
+        while self.current_token() and self.current_token()[0] == 'OPERATOR' and self.current_token()[1] == '&':
+            op = self.current_token()[1]
+            self.advance()
+            right = self.parse_equality()
+            left = BinaryOp(left, op, right)
+        return left
+    
+    def parse_equality(self):
+        left = self.parse_relational()
+        while self.current_token() and self.current_token()[0] == 'OPERATOR' and self.current_token()[1] in ('==', '!='):
+            op = self.current_token()[1]
+            self.advance()
+            right = self.parse_relational()
+            left = BinaryOp(left, op, right)
+        return left
+    
+    def parse_relational(self):
+        left = self.parse_shift()
+        while self.current_token() and ((self.current_token()[0] == 'OPERATOR' and self.current_token()[1] in ('<', '>', '<=', '>=')) or self.current_token()[0] == 'INSTANCEOF'):
+            if self.current_token()[0] == 'OPERATOR':
+                op = self.current_token()[1]
+            else:
+                op = 'instanceof'
+            self.advance()
+            right = self.parse_shift()
+            left = BinaryOp(left, op, right)
+        return left
+    
+    def parse_shift(self):
         left = self.parse_additive()
-        while self.current_token() and self.current_token()[0] == 'OPERATOR' and self.current_token()[1] in ('<', '>', '<=', '>=', '==', '!='):
+        while self.current_token() and self.current_token()[0] == 'OPERATOR' and self.current_token()[1] in ('<<', '>>', '>>>'):
             op = self.current_token()[1]
             self.advance()
             right = self.parse_additive()
@@ -557,11 +620,14 @@ class Parser:
         return left
     
     def parse_unary(self):
-        if self.current_token() and self.current_token()[0] == 'OPERATOR' and self.current_token()[1] in ('-', '!'):
+        if self.current_token() and self.current_token()[0] == 'OPERATOR' and self.current_token()[1] in ('-', '+', '!', '~', '++', '--'):
             op = self.current_token()[1]
             self.advance()
             operand = self.parse_unary()
-            return UnaryOp(op, operand)
+            if op in ('++', '--'):
+                return PrefixOp(op, operand)
+            else:
+                return UnaryOp(op, operand)
         return self.parse_primary()
     
     def parse_primary(self):
@@ -609,17 +675,21 @@ class Parser:
         else:
             raise SyntaxError(f"Line {token[2]}: Unexpected token: {token}")
         
-        while self.current_token() and self.current_token()[0] == 'DOT':
+        while self.current_token() and self.current_token()[0] == 'OPERATOR' and self.current_token()[1] in ('++', '--'):
+            op = self.current_token()[1]
             self.advance()
-            if self.current_token() and self.current_token()[0] == 'IDENTIFIER':
-                attr = self.current_token()[1]
-                self.advance()
-                expr = AttributeExpr(expr, attr)
-            else:
-                raise SyntaxError("Expected identifier after dot")
+            expr = PostfixOp(expr, op)
         
-        while self.current_token() and self.current_token()[0] in ('LPAREN', 'LBRACKET'):
-            if self.current_token()[0] == 'LPAREN':
+        while self.current_token() and self.current_token()[0] in ('DOT', 'LPAREN', 'LBRACKET'):
+            if self.current_token()[0] == 'DOT':
+                self.advance()
+                if self.current_token() and self.current_token()[0] == 'IDENTIFIER':
+                    attr = self.current_token()[1]
+                    self.advance()
+                    expr = AttributeExpr(expr, attr)
+                else:
+                    raise SyntaxError("Expected identifier after dot")
+            elif self.current_token()[0] == 'LPAREN':
                 self.advance()
                 args = []
                 while self.current_token() and self.current_token()[0] != 'RPAREN':
@@ -819,12 +889,66 @@ class Interpreter:
             return self.eval_binary_op(node, env)
         elif isinstance(node, UnaryOp):
             return self.eval_unary_op(node, env)
+        elif isinstance(node, PrefixOp):
+            return self.eval_prefix_op(node, env)
+        elif isinstance(node, PostfixOp):
+            return self.eval_postfix_op(node, env)
+        elif isinstance(node, TernaryOp):
+            return self.eval_ternary_op(node, env)
         elif isinstance(node, FuncCall):
             return self.eval_func_call(node, env)
         elif isinstance(node, IndexExpr):
             return self.eval_index_expr(node, env)
         elif isinstance(node, AttributeExpr):
             return self.eval_attribute_expr(node, env)
+    
+    def get_lvalue(self, node, env):
+        if isinstance(node, Identifier):
+            return env[node.name]
+        elif isinstance(node, IndexExpr):
+            obj = self.eval(node.object, env)
+            index = self.eval(node.index, env)
+            if isinstance(obj, list) or isinstance(obj, dict):
+                return obj[index]
+            else:
+                raise TypeError("Cannot index non-list or non-dict")
+        elif isinstance(node, AttributeExpr):
+            obj = self.eval(node.object, env)
+            if isinstance(obj, ShiboInstance):
+                return obj.env[node.attribute]
+            elif isinstance(obj, dict):
+                return obj[node.attribute]
+            else:
+                try:
+                    return getattr(obj, node.attribute)
+                except AttributeError:
+                    raise AttributeError(f"'{type(obj).__name__}' has no attribute '{node.attribute}'")
+        else:
+            raise TypeError("Invalid lvalue")
+    
+    def set_lvalue(self, node, value, env):
+        if isinstance(node, Identifier):
+            env[node.name] = value
+        elif isinstance(node, IndexExpr):
+            obj = self.eval(node.object, env)
+            index = self.eval(node.index, env)
+            if isinstance(obj, list) or isinstance(obj, dict):
+                obj[index] = value
+            else:
+                raise TypeError("Cannot assign to non-list or non-dict")
+        elif isinstance(node, AttributeExpr):
+            obj = self.eval(node.object, env)
+            if isinstance(obj, ShiboInstance):
+                obj.env[node.attribute] = value
+            elif isinstance(obj, dict):
+                obj[node.attribute] = value
+            else:
+                try:
+                    setattr(obj, node.attribute, value)
+                except AttributeError:
+                    raise TypeError(f"Cannot set attribute '{node.attribute}' on {type(obj).__name__}")
+        else:
+            raise TypeError("Invalid lvalue")
     
     def eval_program(self, node, env):
         result = None
@@ -912,9 +1036,7 @@ class Interpreter:
         elif isinstance(node.target, IndexExpr):
             obj = self.eval(node.target.object, env)
             index = self.eval(node.target.index, env)
-            if isinstance(obj, list):
-                obj[index] = value
-            elif isinstance(obj, dict):
+            if isinstance(obj, list) or isinstance(obj, dict):
                 obj[index] = value
             else:
                 raise TypeError("Cannot assign to non-list or non-dict")
@@ -1017,6 +1139,45 @@ class Interpreter:
     def eval_expr_stmt(self, node, env):
         return self.eval(node.expression, env)
     
+    def eval_prefix_op(self, node, env):
+        operand = node.operand
+        if not isinstance(operand, (Identifier, IndexExpr, AttributeExpr)):
+            raise TypeError("Invalid operand for prefix operator")
+        old_value = self.get_lvalue(operand, env)
+        if not isinstance(old_value, (int, float)):
+            raise TypeError("Can only increment/decrement numbers")
+        if node.op == '++':
+            new_value = old_value + 1
+        elif node.op == '--':
+            new_value = old_value - 1
+        else:
+            raise ValueError("Invalid prefix operator")
+        self.set_lvalue(operand, new_value, env)
+        return new_value
+    
+    def eval_postfix_op(self, node, env):
+        operand = node.operand
+        if not isinstance(operand, (Identifier, IndexExpr, AttributeExpr)):
+            raise TypeError("Invalid operand for postfix operator")
+        old_value = self.get_lvalue(operand, env)
+        if not isinstance(old_value, (int, float)):
+            raise TypeError("Can only increment/decrement numbers")
+        if node.op == '++':
+            new_value = old_value + 1
+        elif node.op == '--':
+            new_value = old_value - 1
+        else:
+            raise ValueError("Invalid postfix operator")
+        self.set_lvalue(operand, new_value, env)
+        return old_value
+    
+    def eval_ternary_op(self, node, env):
+        condition = self.eval(node.condition, env)
+        if condition:
+            return self.eval(node.true_expr, env)
+        else:
+            return self.eval(node.false_expr, env)
+    
     def eval_binary_op(self, node, env):
         left = self.eval(node.left, env)
         if node.op == '&&':
@@ -1034,6 +1195,8 @@ class Interpreter:
             return left * right
         elif node.op == '/':
             return left / right
+        elif node.op == '//':
+            return left // right
         elif node.op == '%':
             return left % right
         elif node.op == '==':
@@ -1048,13 +1211,46 @@ class Interpreter:
             return left <= right
         elif node.op == '>=':
             return left >= right
+        elif node.op in ('&', '|', '^', '<<', '>>', '>>>'):
+            if not isinstance(left, int) or not isinstance(right, int):
+                raise TypeError("Bitwise operations require integers")
+            if node.op == '&':
+                return left & right
+            elif node.op == '|':
+                return left | right
+            elif node.op == '^':
+                return left ^ right
+            elif node.op == '<<':
+                return left << right
+            elif node.op == '>>':
+                return left >> right
+            elif node.op == '>>>':
+                return (left & 0xFFFFFFFF) >> right
+        elif node.op == 'instanceof':
+            if not isinstance(left, ShiboInstance):
+                return False
+            right_val = self.eval(node.right, env)
+            if not isinstance(right_val, ShiboClass):
+                return False
+            cls = left.cls
+            while cls:
+                if cls == right_val:
+                    return True
+                cls = self.env.get(cls.base) if cls.base else None
+            return False
     
     def eval_unary_op(self, node, env):
         operand = self.eval(node.operand, env)
         if node.op == '-':
             return -operand
+        elif node.op == '+':
+            return operand
         elif node.op == '!':
             return not operand
+        elif node.op == '~':
+            if not isinstance(operand, int):
+                raise TypeError("Bitwise complement requires integer")
+            return ~operand
     
     def eval_func_call(self, node, env, instance_env=None):
         func = self.eval(node.func_expr, env)
@@ -1097,8 +1293,8 @@ class Interpreter:
         obj = self.eval(node.object, env)
         index = self.eval(node.index, env)
         if isinstance(index, Slice):
-            start = index.start if index.start is not None else 0
-            end = index.end if index.end is not None else len(obj)
+            start = self.eval(index.start, env) if index.start is not None else 0
+            end = self.eval(index.end, env) if index.end is not None else len(obj)
             if isinstance(obj, list):
                 return obj[start:end]
             raise TypeError("Slicing only supported on lists")

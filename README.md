@@ -64,6 +64,30 @@ Enter a number: 25
 print(math.sqrt(x));
 5.0
 ```
+## Operators
+```shiboscript
+Arithmetic: +, -, *, /, %, ++, --, unary + and -
+
+Assignment: =, +=, -=, *=, /=, %=, &=, |=, ^=, <<=, >>=, >>>=
+
+Comparison: ==, !=, >, <, >=, <=
+
+Logical: &&, ||, !
+
+Bitwise: &, |, ^, ~, <<, >>, >>>
+
+Ternary: ? and :
+```
+### Ternary Operator 
+#### Example
+```shiboscript
+var x = 5;
+print(x++);     # Prints 5, x becomes 6
+print(++x);     # Prints 7, x becomes 7
+x += 3;         # x becomes 10
+print(x > 5 ? "Yes" : "No");  # Prints "Yes"
+```
+
 ### Variables
 ```shiboscript 
 var x = 10;
@@ -78,6 +102,19 @@ if (x > 0) {
     print("Positive");
 } else {
     print("Non-positive");
+}
+```
+#### if ElseIF else 
+```shiboscript
+var a = 5;
+var b = 3;
+print(a & b);  # Should output 1 (binary: 101 & 011 = 001)
+if (a > b) {
+    print("a is greater");
+} else if (a < b) {
+    print("b is greater");
+} else {
+    print("equal");
 }
 ```
 #### 3 Type of Loops in ShiboScript

@@ -1,0 +1,61 @@
+1. Updated Token Definitions
+OPERATOR Pattern: Updated to r'>>>=|>>>|<<=|<<|>>=|>>|\+=|-=|\*=|/=|%=|&=|\|=|\^=|\+\+|--|==|!=|<=|>=|&&|\|\||//|[+\-*/%=<>!&|^~?:]', covering all requested operators:
+Arithmetic: +, -, *, /, %, ++, --, unary + and -
+
+Assignment: =, +=, -=, *=, /=, %=, &=, |=, ^=, <<=, >>=, >>>=
+
+Comparison: ==, !=, >, <, >=, <=
+
+Logical: &&, ||, !
+
+Bitwise: &, |, ^, ~, <<, >>, >>>
+
+Ternary: ? and :
+
+INSTANCEOF: Added as a separate token ('INSTANCEOF', r'\binstanceof\b').
+
+2. New AST Nodes
+PrefixOp: For ++a and --a.
+
+PostfixOp: For a++ and a--.
+
+TernaryOp: For condition ? true_expr : false_expr.
+
+3. Parser Updates
+parse_unary: Handles unary +, -, !, and prefix ++ and --.
+
+parse_primary: Handles postfix ++ and -- before dot, function calls, or indexing for correct precedence (e.g., a.b++ is (a.b)++).
+
+parse_expression: Adds support for the ternary operator after logical OR, ensuring lower precedence (e.g., a || b ? c : d is (a || b) ? c : d).
+
+parse_comparison: Supports instanceof alongside <, >, <=, >=, ==, !=.
+
+parse_statement: Handles augmented assignments (e.g., +=) by converting them to AssignStmt(target, BinaryOp(target, op, value)).
+
+4. Interpreter Updates
+get_lvalue/set_lvalue: Helper methods to get and set values for lvalues (variables, array elements, object properties).
+
+eval_prefix_op: Evaluates ++a (increments and returns new value) and --a.
+
+eval_postfix_op: Evaluates a++ (returns old value, then increments) and a--.
+
+eval_ternary_op: Evaluates condition ? true_expr : false_expr.
+
+eval_binary_op: Adds support for:
+Bitwise: &, |, ^, <<, >>, >>> (unsigned right shift as (left & 0xFFFFFFFF) >> right for 32-bit behavior).
+
+instanceof: Checks if an object is an instance of a class, traversing inheritance.
+
+eval_unary_op: Adds ~ (bitwise complement) and unary +.
+
+5. Operator Precedence
+Maintained through the parser’s recursive descent structure:
+Unary (++, --, +, -, !, ~) > Multiplicative (*, /, %) > Additive (+, -) > Comparison (<, >, etc., instanceof) > Logical AND (&&) > Logical OR (||) > Ternary (?:) > Assignment (=, +=, etc.).
+
+Parentheses () override precedence naturally via parse_primary.
+
+6. Real-World Suitability
+The expanded operator set supports complex mathematical operations, bitwise manipulations, concise variable updates, conditional expressions, and type checking, aligning ShiboScript with languages like JavaScript, Java, or C++.
+
+This updated code should now fully support all specified operators, enhancing ShiboScript’s expressiveness and utility for real-world programming tasks. You can test it in the REPL or by running scripts with examples like:
+
