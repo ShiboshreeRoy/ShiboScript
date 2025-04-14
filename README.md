@@ -2,7 +2,10 @@
 ![ShiboScript ](./icon/ShiboScript.png)
 
 
-# ShiboScript v0.1.0
+## ShiboScript
+
+![Version](https://img.shields.io/badge/version-v0.1.0-blue.svg)
+![Version](https://img.shields.io/badge/version-v2.01-green.svg)
 ### Developed by ShiboShreeRoy
 
 ## Introduction
