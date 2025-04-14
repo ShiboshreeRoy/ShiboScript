@@ -429,6 +429,64 @@ print(result.stdout)
 var payload = random.string(10)
 print(payload)
 ```
+# Task Manager(Project)
+```shiboscript
+var tasks = [];
+var filename = "tasks.json";
+
+func loadTasks() {
+    if (os.exists(filename)) {
+        var content = file.read(filename);
+        tasks = json.decode(content);
+    }
+}
+
+func saveTasks() {
+    var content = json.encode(tasks);
+    file.write(filename, content);
+}
+
+loadTasks();
+
+while (true) {
+    print("\n=== ShiboScript Todo Manager ===");
+    print("1. Add Task");
+    print("2. List Tasks");
+    print("3. Delete Task");
+    print("4. Exit");
+    var choice = input("Enter choice: ");
+
+    if (choice == "1") {
+        var task = input("Enter task: ");
+        append(tasks, task);
+        saveTasks();
+        print("✅ Task added!");
+    } else if (choice == "2") {
+        if (len(tasks) == 0) {
+            print("No tasks found.");
+        } else {
+            print("\nYour Tasks:");
+            for (i in range(0, len(tasks))) {
+                print("[" + str(i) + "] " + tasks[i]);
+            }
+        }
+    } else if (choice == "3") {
+        var index = int(input("Enter index to delete: "));
+        if (index >= 0 && index < len(tasks)) {
+            pop(tasks, index);
+            saveTasks();
+            print("🗑️ Task deleted!");
+        } else {
+            print("Invalid index!");
+        }
+    } else if (choice == "4") {
+        print("Goodbye!");
+        break;
+    } else {
+        print("Invalid choice!");
+    }
+}
+```
 ## How It Works
 ShiboScript is powered by three core components:
 1. **Lexer** – Converts source code into tokens.
