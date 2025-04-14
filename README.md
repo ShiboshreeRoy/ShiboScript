@@ -88,6 +88,7 @@ var x = 5;
 print(x++);     # Prints 5, x becomes 6
 print(++x);     # Prints 7, x becomes 7
 x += 3;         # x becomes 10
+# ternary Operator
 print(x > 5 ? "Yes" : "No");  # Prints "Yes"
 ```
 
