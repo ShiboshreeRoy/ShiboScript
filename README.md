@@ -1,7 +1,9 @@
 
 ![ShiboScript ](./icon/ShiboScript.png)
 
-
+## Icon/Logo
+![shiboscript](./shiboscript.ico)
+![Shiboscript](./icon/icon.ico)
 ## ShiboScript
 
 ![Version](https://img.shields.io/badge/version-v0.1.0-blue.svg)
@@ -41,6 +43,9 @@ Run the interpreter with file:
 python shiboscript.py filename.sp
 ```
 This starts the REPL (Read-Eval-Print Loop). To exit, type `exit`.
+
+## Download for Windows
+### [Download](./dist/main.exe)
 
 ## Language Syntax
 ```bash
