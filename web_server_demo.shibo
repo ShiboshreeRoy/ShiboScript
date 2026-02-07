@@ -1,0 +1,423 @@
+# Simple Web Server for ShiboScript Blog
+print("Starting ShiboScript Web Server...")
+
+# Web server configuration
+var PORT = 8080
+var HOST = "localhost"
+
+print("Server Configuration:")
+print("- Host: " + HOST)
+print("- Port: " + PORT)
+print("- URL: http://" + HOST + ":" + PORT)
+print("")
+
+# Load blog data
+var blog_posts = []
+var blog_authors = []
+
+func load_data() {
+    try {
+        var posts_content = file.read("blog_posts.json")
+        blog_posts = json.decode(posts_content)
+        print("Loaded " + len(blog_posts) + " blog posts")
+    } catch (error) {
+        print("No posts file found, using empty data")
+        blog_posts = []
+    }
+    
+    try {
+        var authors_content = file.read("blog_authors.json")
+        blog_authors = json.decode(authors_content)
+        print("Loaded " + len(blog_authors) + " authors")
+    } catch (error) {
+        print("No authors file found, using default author")
+        blog_authors = [
+            {
+                "id": 1,
+                "name": "Shibo Script",
+                "email": "shibo@example.com",
+                "bio": "Creator of ShiboScript language"
+            }
+        ]
+    }
+}
+
+# Load the data
+load_data()
+
+# Simple HTTP response generator
+func create_response(status_code, content, content_type) {
+    var status_text = "OK"
+    if (status_code == 404) {
+        status_text = "Not Found"
+    } else if (status_code == 500) {
+        status_text = "Internal Server Error"
+    }
+    
+    var response = "HTTP/1.1 " + status_code + " " + status_text + "\r\n"
+    response = response + "Content-Type: " + content_type + "\r\n"
+    response = response + "Content-Length: " + len(content) + "\r\n"
+    response = response + "Connection: close\r\n"
+    response = response + "\r\n"
+    response = response + content
+    
+    return response
+}
+
+# Route handlers
+func handle_home() {
+    var html = """
+<!DOCTYPE html>
+<html>
+<head>
+    <title>ShiboScript Blog</title>
+    <style>
+        body { font-family: Arial, sans-serif; max-width: 800px; margin: 0 auto; padding: 20px; background: #f5f5f5; }
+        header { background: #2c3e50; color: white; padding: 20px; text-align: center; border-radius: 8px; }
+        nav { text-align: center; margin: 20px 0; }
+        nav a { margin: 0 15px; color: #2c3e50; text-decoration: none; }
+        nav a:hover { text-decoration: underline; }
+        .content { background: white; padding: 30px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        .post { margin: 20px 0; padding: 15px; border-left: 4px solid #3498db; }
+        .post h3 { margin-top: 0; color: #2c3e50; }
+        .post-meta { color: #7f8c8d; font-size: 0.9em; }
+        .excerpt { color: #555; line-height: 1.6; }
+        footer { text-align: center; margin-top: 30px; color: #7f8c8d; }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>🐕 ShiboScript Blog</h1>
+        <p>A modern blog built with ShiboScript</p>
+    </header>
+    
+    <nav>
+        <a href="/">Home</a>
+        <a href="/posts">All Posts</a>
+        <a href="/about">About</a>
+    </nav>
+    
+    <div class="content">
+        <h2>Welcome to ShiboScript Blog!</h2>
+        <p>This is a demonstration blog platform built entirely with ShiboScript, showcasing its web development capabilities.</p>
+        
+        <h3>Recent Posts</h3>
+"""
+    
+    # Add recent posts
+    var recent_count = min(3, len(blog_posts))
+    var start_index = max(0, len(blog_posts) - recent_count)
+    
+    for (var i = start_index; i < len(blog_posts); i++) {
+        var post = blog_posts[i]
+        html = html + """
+<div class="post">
+    <h3>""" + post.title + """</h3>
+    <p class="post-meta">By """ + post.author + """ on """ + post.date + """</p>
+    <p class="excerpt">""" + post.content.substring(0, 200) + """...</p>
+    <a href="/post/""" + post.id + """">Read More →</a>
+</div>
+"""
+    }
+    
+    html = html + """
+    </div>
+    
+    <footer>
+        <p>&copy; 2024 ShiboScript Blog | Built with ShiboScript v0.3.0</p>
+    </footer>
+</body>
+</html>
+"""
+    
+    return create_response(200, html, "text/html")
+}
+
+func handle_posts() {
+    var html = """
+<!DOCTYPE html>
+<html>
+<head>
+    <title>All Posts - ShiboScript Blog</title>
+    <style>
+        body { font-family: Arial, sans-serif; max-width: 800px; margin: 0 auto; padding: 20px; background: #f5f5f5; }
+        header { background: #2c3e50; color: white; padding: 20px; text-align: center; border-radius: 8px; }
+        nav { text-align: center; margin: 20px 0; }
+        nav a { margin: 0 15px; color: #2c3e50; text-decoration: none; }
+        nav a:hover { text-decoration: underline; }
+        .content { background: white; padding: 30px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        .post-listing { margin: 15px 0; padding: 15px; border-bottom: 1px solid #eee; }
+        .post-listing:last-child { border-bottom: none; }
+        .post-listing h3 { margin: 0 0 10px 0; color: #2c3e50; }
+        .post-meta { color: #7f8c8d; font-size: 0.9em; margin: 5px 0; }
+        footer { text-align: center; margin-top: 30px; color: #7f8c8d; }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>🐕 ShiboScript Blog</h1>
+        <p>All Blog Posts</p>
+    </header>
+    
+    <nav>
+        <a href="/">Home</a>
+        <a href="/posts">All Posts</a>
+        <a href="/about">About</a>
+    </nav>
+    
+    <div class="content">
+        <h2>All Blog Posts</h2>
+"""
+    
+    # Add all posts (newest first)
+    for (var i = len(blog_posts) - 1; i >= 0; i--) {
+        var post = blog_posts[i]
+        html = html + """
+<div class="post-listing">
+    <h3>""" + post.title + """</h3>
+    <p class="post-meta">By """ + post.author + """ on """ + post.date + """</p>
+    <p>""" + post.content.substring(0, 150) + """...</p>
+    <a href="/post/""" + post.id + """">Read Full Post</a>
+</div>
+"""
+    }
+    
+    if (len(blog_posts) == 0) {
+        html = html + "<p>No posts available yet.</p>"
+    }
+    
+    html = html + """
+    </div>
+    
+    <footer>
+        <p>&copy; 2024 ShiboScript Blog</p>
+    </footer>
+</body>
+</html>
+"""
+    
+    return create_response(200, html, "text/html")
+}
+
+func handle_post(post_id) {
+    # Find the post
+    var post = null
+    for (var p in blog_posts) {
+        if (p.id == post_id) {
+            post = p
+            break
+        }
+    }
+    
+    if (post == null) {
+        return create_response(404, "<h1>Post Not Found</h1><p>The requested post could not be found.</p>", "text/html")
+    }
+    
+    var html = """
+<!DOCTYPE html>
+<html>
+<head>
+    <title>""" + post.title + """ - ShiboScript Blog</title>
+    <style>
+        body { font-family: Arial, sans-serif; max-width: 800px; margin: 0 auto; padding: 20px; background: #f5f5f5; }
+        header { background: #2c3e50; color: white; padding: 20px; text-align: center; border-radius: 8px; }
+        nav { text-align: center; margin: 20px 0; }
+        nav a { margin: 0 15px; color: #2c3e50; text-decoration: none; }
+        nav a:hover { text-decoration: underline; }
+        .content { background: white; padding: 30px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        .post-title { color: #2c3e50; margin-bottom: 10px; }
+        .post-meta { color: #7f8c8d; font-size: 0.9em; margin-bottom: 20px; }
+        .post-content { line-height: 1.8; color: #333; }
+        footer { text-align: center; margin-top: 30px; color: #7f8c8d; }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>🐕 ShiboScript Blog</h1>
+        <p>""" + post.title + """</p>
+    </header>
+    
+    <nav>
+        <a href="/">Home</a>
+        <a href="/posts">All Posts</a>
+        <a href="/about">About</a>
+    </nav>
+    
+    <div class="content">
+        <h1 class="post-title">""" + post.title + """</h1>
+        <p class="post-meta">By """ + post.author + """ on """ + post.date + """</p>
+        <div class="post-content">
+            """ + post.content.replace("\n", "<br>") + """
+        </div>
+    </div>
+    
+    <footer>
+        <p>&copy; 2024 ShiboScript Blog</p>
+    </footer>
+</body>
+</html>
+"""
+    
+    return create_response(200, html, "text/html")
+}
+
+func handle_about() {
+    var html = """
+<!DOCTYPE html>
+<html>
+<head>
+    <title>About - ShiboScript Blog</title>
+    <style>
+        body { font-family: Arial, sans-serif; max-width: 800px; margin: 0 auto; padding: 20px; background: #f5f5f5; }
+        header { background: #2c3e50; color: white; padding: 20px; text-align: center; border-radius: 8px; }
+        nav { text-align: center; margin: 20px 0; }
+        nav a { margin: 0 15px; color: #2c3e50; text-decoration: none; }
+        nav a:hover { text-decoration: underline; }
+        .content { background: white; padding: 30px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        .author-card { background: #f8f9fa; padding: 20px; margin: 15px 0; border-radius: 8px; }
+        .author-card h3 { color: #2c3e50; margin-top: 0; }
+        footer { text-align: center; margin-top: 30px; color: #7f8c8d; }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>🐕 ShiboScript Blog</h1>
+        <p>About This Blog</p>
+    </header>
+    
+    <nav>
+        <a href="/">Home</a>
+        <a href="/posts">All Posts</a>
+        <a href="/about">About</a>
+    </nav>
+    
+    <div class="content">
+        <h2>About ShiboScript Blog</h2>
+        <p>This blog platform demonstrates the web development capabilities of ShiboScript, a lightweight scripting language designed for education and automation.</p>
+        
+        <h3>Features</h3>
+        <ul>
+            <li>Full web framework with routing</li>
+            <li>Template rendering system</li>
+            <li>Responsive design</li>
+            <li>Data persistence</li>
+            <li>Content management</li>
+        </ul>
+        
+        <h3>Authors</h3>
+"""
+    
+    for (author in blog_authors) {
+        html = html + """
+<div class="author-card">
+    <h3>""" + author.name + """</h3>
+    <p>""" + author.bio + """</p>
+    <p>Email: """ + author.email + """</p>
+</div>
+"""
+    }
+    
+    html = html + """
+    </div>
+    
+    <footer>
+        <p>&copy; 2024 ShiboScript Blog | Built with ❤️ in ShiboScript</p>
+    </footer>
+</body>
+</html>
+"""
+    
+    return create_response(200, html, "text/html")
+}
+
+func handle_not_found() {
+    var html = """
+<!DOCTYPE html>
+<html>
+<head>
+    <title>404 - Page Not Found</title>
+    <style>
+        body { font-family: Arial, sans-serif; text-align: center; padding: 50px; background: #f5f5f5; }
+        .container { background: white; padding: 30px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); max-width: 500px; margin: 0 auto; }
+        h1 { color: #e74c3c; }
+        a { color: #3498db; text-decoration: none; }
+        a:hover { text-decoration: underline; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>404 - Page Not Found</h1>
+        <p>Sorry, the page you're looking for doesn't exist.</p>
+        <p><a href="/">← Back to Home</a></p>
+    </div>
+</body>
+</html>
+"""
+    
+    return create_response(404, html, "text/html")
+}
+
+# Simple HTTP request parser
+func parse_request(request_data) {
+    var lines = request_data.split("\n")
+    if (len(lines) == 0) {
+        return null
+    }
+    
+    var first_line = lines[0].strip()
+    var parts = first_line.split(" ")
+    if (len(parts) < 2) {
+        return null
+    }
+    
+    return {
+        "method": parts[0],
+        "path": parts[1],
+        "version": parts[2] if len(parts) > 2 else "HTTP/1.1"
+    }
+}
+
+# Main server loop (simulated)
+func start_server() {
+    print("=== SHIBOSCRIPT WEB SERVER ===")
+    print("Server starting on http://" + HOST + ":" + PORT)
+    print("Press Ctrl+C to stop")
+    print("")
+    print("Available pages:")
+    print("- http://" + HOST + ":" + PORT + " (Home)")
+    print("- http://" + HOST + ":" + PORT + "/posts (All Posts)")
+    print("- http://" + HOST + ":" + PORT + "/about (About)")
+    print("- http://" + HOST + ":" + PORT + "/post/1 (Individual Post)")
+    print("")
+    print("⚠️  NOTE: This is a demonstration server.")
+    print("In a real implementation, this would listen on the network port.")
+    print("For now, you can test the HTML generation by viewing the output below:")
+    print("")
+    
+    # Generate and show sample responses
+    print("=== HOME PAGE HTML ===")
+    var home_response = handle_home()
+    print(home_response.substring(0, 500) + "...")
+    print("")
+    
+    print("=== POSTS PAGE HTML ===")
+    var posts_response = handle_posts()
+    print(posts_response.substring(0, 500) + "...")
+    print("")
+    
+    print("=== ABOUT PAGE HTML ===")
+    var about_response = handle_about()
+    print(about_response.substring(0, 500) + "...")
+    print("")
+    
+    print("✅ Server simulation complete!")
+    print("To run a real web server, you would need to:")
+    print("1. Use Python's http.server module")
+    print("2. Create actual network socket listening")
+    print("3. Implement proper request/response handling")
+    print("")
+    print("The HTML content above shows what your blog would look like!")
+}
+
+# Start the server
+start_server()

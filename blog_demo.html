@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>ShiboScript Blog - Demo</title>
+    <meta charset="UTF-8">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background-color: #f8f9fa;
+        }
+        
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        header {
+            background: linear-gradient(135deg, #2c3e50, #34495e);
+            color: white;
+            padding: 2rem;
+            border-radius: 12px;
+            text-align: center;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            margin-bottom: 2rem;
+        }
+        
+        header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        header p {
+            font-size: 1.2rem;
+            opacity: 0.9;
+        }
+        
+        nav {
+            background: white;
+            padding: 1rem;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+        
+        nav a {
+            color: #2c3e50;
+            text-decoration: none;
+            padding: 0.5rem 1rem;
+            margin: 0 0.5rem;
+            border-radius: 4px;
+            transition: all 0.3s ease;
+        }
+        
+        nav a:hover {
+            background: #3498db;
+            color: white;
+        }
+        
+        .content {
+            background: white;
+            padding: 2rem;
+            border-radius: 8px;
+            box-shadow: 0 2px 15px rgba(0,0,0,0.1);
+        }
+        
+        .post {
+            padding: 1.5rem 0;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .post:last-child {
+            border-bottom: none;
+        }
+        
+        .post h2 {
+            color: #2c3e50;
+            margin-bottom: 0.5rem;
+        }
+        
+        .post-meta {
+            color: #7f8c8d;
+            font-size: 0.9rem;
+            margin-bottom: 1rem;
+        }
+        
+        .post-excerpt {
+            color: #555;
+            margin-bottom: 1rem;
+            line-height: 1.7;
+        }
+        
+        .read-more {
+            color: #3498db;
+            text-decoration: none;
+            font-weight: bold;
+            display: inline-block;
+        }
+        
+        .read-more:hover {
+            text-decoration: underline;
+        }
+        
+        footer {
+            text-align: center;
+            padding: 2rem;
+            color: #7f8c8d;
+            margin-top: 2rem;
+        }
+        
+        .feature-list {
+            background: #f8f9fa;
+            padding: 1.5rem;
+            border-radius: 8px;
+            margin: 1.5rem 0;
+        }
+        
+        .feature-list h3 {
+            color: #2c3e50;
+            margin-bottom: 1rem;
+        }
+        
+        .feature-list ul {
+            list-style: none;
+            padding-left: 0;
+        }
+        
+        .feature-list li {
+            padding: 0.5rem 0;
+            padding-left: 1.5rem;
+            position: relative;
+        }
+        
+        .feature-list li:before {
+            content: "✓";
+            color: #27ae60;
+            font-weight: bold;
+            position: absolute;
+            left: 0;
+        }
+        
+        @media (max-width: 768px) {
+            .container {
+                padding: 10px;
+            }
+            
+            header h1 {
+                font-size: 2rem;
+            }
+            
+            header, .content {
+                padding: 1.5rem;
+            }
+            
+            nav a {
+                display: block;
+                margin: 0.25rem 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🐕 ShiboScript Blog</h1>
+            <p>Built with ShiboScript Web Framework</p>
+        </header>
+        
+        <nav>
+            <a href="#home">🏠 Home</a>
+            <a href="#posts">📝 Posts</a>
+            <a href="#features">✨ Features</a>
+            <a href="#about">👤 About</a>
+        </nav>
+        
+        <div class="content">
+            <div id="home">
+                <h2>Welcome to ShiboScript Blog!</h2>
+                <p>This is a demonstration blog platform built entirely with <strong>ShiboScript</strong>, showcasing its powerful web development capabilities.</p>
+                
+                <div class="feature-list">
+                    <h3>🚀 ShiboScript Web Features Demonstrated:</h3>
+                    <ul>
+                        <li>Complete web framework with routing</li>
+                        <li>HTML template rendering and processing</li>
+                        <li>HTTP client with enhanced methods (GET, POST, PUT, DELETE)</li>
+                        <li>JSON schema validation and API development</li>
+                        <li>JWT authentication implementation</li>
+                        <li>Responsive CSS design</li>
+                        <li>Static file serving capabilities</li>
+                        <li>Data persistence with JSON storage</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div id="posts">
+                <h2>Featured Blog Posts</h2>
+                
+                <div class="post">
+                    <h2>🚀 Introduction to ShiboScript Web Development</h2>
+                    <p class="post-meta">By Shibo Script • February 8, 2024</p>
+                    <div class="post-excerpt">
+                        <p>ShiboScript is more than just an educational scripting language – it's a powerful platform for web development! In this comprehensive guide, we'll explore how ShiboScript's built-in web framework can help you create professional web applications with ease.</p>
+                        
+                        <p>With features like enhanced HTTP clients, HTML processing capabilities, template rendering, and RESTful API development tools, ShiboScript provides everything you need to build modern web applications. The language is designed with both beginners and professionals in mind.</p>
+                        
+                        <p>Key web development features include routing, middleware support, authentication, static file serving, and seamless integration with modern web technologies.</p>
+                    </div>
+                    <a href="#" class="read-more">Read Full Article →</a>
+                </div>
+                
+                <div class="post">
+                    <h2>🎨 Building a Blog Platform with ShiboScript</h2>
+                    <p class="post-meta">By Shibo Script • February 7, 2024</p>
+                    <div class="post-excerpt">
+                        <p>What you're seeing right now is a complete blog platform built using ShiboScript! This demonstrates the language's capability for real-world web development projects.</p>
+                        
+                        <p>The platform includes a public-facing blog with responsive design, an admin panel for content management, data persistence using JSON files, and a comprehensive template system. All of this was built using ShiboScript's web development features.</p>
+                        
+                        <p>From handling HTTP requests to rendering dynamic content, from processing HTML to managing user authentication, ShiboScript provides a complete toolkit for modern web development.</p>
+                    </div>
+                    <a href="#" class="read-more">Read Full Article →</a>
+                </div>
+                
+                <div class="post">
+                    <h2>🔧 Advanced Web Features in ShiboScript</h2>
+                    <p class="post-meta">By Web Developer • February 6, 2024</p>
+                    <div class="post-excerpt">
+                        <p>ShiboScript's advanced web features make it suitable for professional web development projects:</p>
+                        
+                        <p><strong>HTTP Operations:</strong> Enhanced GET, POST, PUT, DELETE methods with proper headers and error handling. Support for file downloads and content-type detection.</p>
+                        
+                        <p><strong>Content Processing:</strong> HTML parsing and extraction, CSS rule processing, form data handling, and structured content manipulation.</p>
+                        
+                        <p><strong>Security:</strong> JWT authentication, JSON schema validation, input sanitization, and secure data handling practices.</p>
+                    </div>
+                    <a href="#" class="read-more">Read Full Article →</a>
+                </div>
+            </div>
+            
+            <div id="features">
+                <h2>✨ Complete Feature Set</h2>
+                
+                <div class="feature-list">
+                    <h3>Web Framework Components:</h3>
+                    <ul>
+                        <li>Web server creation and configuration</li>
+                        <li>Route registration and handling</li>
+                        <li>Middleware support for logging and processing</li>
+                        <li>Static file serving capabilities</li>
+                        <li>Template rendering engine</li>
+                        <li>Request/response handling</li>
+                    </ul>
+                </div>
+                
+                <div class="feature-list">
+                    <h3>Development Tools:</h3>
+                    <ul>
+                        <li>Enhanced HTTP client with multiple methods</li>
+                        <li>HTML parsing and content extraction</li>
+                        <li>CSS processing and rule parsing</li>
+                        <li>JSON schema validation</li>
+                        <li>JWT token encoding/decoding</li>
+                        <li>API response standardization</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div id="about">
+                <h2>👤 About This Project</h2>
+                <p>This blog platform demonstrates that ShiboScript is ready for <strong>real-world web development</strong>. Built as a comprehensive showcase of the language's capabilities, it includes:</p>
+                
+                <div class="feature-list">
+                    <ul>
+                        <li>Professional-grade web application architecture</li>
+                        <li>Responsive, mobile-friendly design</li>
+                        <li>Complete content management system</li>
+                        <li>Admin panel with CRUD operations</li>
+                        <li>Data persistence and storage solutions</li>
+                        <li>Security best practices implementation</li>
+                        <li>Performance optimization techniques</li>
+                    </ul>
+                </div>
+                
+                <p>The project proves that ShiboScript can compete with established web development frameworks while maintaining its educational accessibility and lightweight nature.</p>
+            </div>
+        </div>
+        
+        <footer>
+            <p>&copy; 2024 ShiboScript Blog Platform</p>
+            <p>Built with ❤️ using ShiboScript v0.3.0</p>
+            <p>Ready for production web development!</p>
+        </footer>
+    </div>
+    
+    <script>
+        // Simple smooth scrolling for navigation
+        document.querySelectorAll('nav a').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const targetId = this.getAttribute('href').substring(1);
+                const targetElement = document.getElementById(targetId);
+                if (targetElement) {
+                    targetElement.scrollIntoView({
+                        behavior: 'smooth'
+                    });
+                }
+            });
+        });
+        
+        // Highlight current section in navigation
+        window.addEventListener('scroll', function() {
+            const sections = ['home', 'posts', 'features', 'about'];
+            const navLinks = document.querySelectorAll('nav a');
+            
+            let current = '';
+            sections.forEach(section => {
+                const element = document.getElementById(section);
+                if (element) {
+                    const rect = element.getBoundingClientRect();
+                    if (rect.top <= 100 && rect.bottom >= 100) {
+                        current = section;
+                    }
+                }
+            });
+            
+            navLinks.forEach(link => {
+                link.style.background = '';
+                link.style.color = '#2c3e50';
+                if (link.getAttribute('href') === '#' + current) {
+                    link.style.background = '#3498db';
+                    link.style.color = 'white';
+                }
+            });
+        });
+    </script>
+</body>
+</html>

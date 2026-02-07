@@ -1,0 +1,65 @@
+# Web Scraper - Real World Project
+# Extracts data from websites and saves to structured files
+
+func scrape_website(url, selector) {
+    # Get webpage content
+    var response = net.http_get(url)
+    
+    if (response.status != 200) {
+        print("Error: Failed to fetch " + url)
+        return null
+    }
+    
+    # Simple text extraction (in real implementation, you'd use proper HTML parsing)
+    var content = response.text
+    var title_start = content.find("<title>")
+    var title_end = content.find("</title>")
+    
+    if (title_start != -1 && title_end != -1) {
+        var title = content.substring(title_start + 7, title_end)
+        return title
+    }
+    
+    return "No title found"
+}
+
+func save_scraped_data(data, filename) {
+    var json_data = json.encode(data)
+    file.write(filename, json_data)
+    print("Data saved to " + filename)
+}
+
+func web_scraper_demo() {
+    print("=== Web Scraper Demo ===")
+    
+    # Example websites to scrape
+    var websites = [
+        {"name": "Example", "url": "https://example.com", "selector": "title"},
+        {"name": "HTTP Bin", "url": "https://httpbin.org/html", "selector": "title"}
+    ]
+    
+    var results = []
+    
+    for (site in websites) {
+        print("Scraping: " + site.name)
+        var title = scrape_website(site.url, site.selector)
+        var result = {
+            "site": site.name,
+            "url": site.url,
+            "title": title,
+            "timestamp": time.now()
+        }
+        results.append(result)
+        print("Found title: " + title)
+        time.sleep(1)  # Be respectful to servers
+    }
+    
+    # Save results
+    save_scraped_data(results, "scraped_data.json")
+    
+    print("\nScraping complete! Found " + len(results) + " websites")
+    return results
+}
+
+# Run the scraper
+var scraped_results = web_scraper_demo()

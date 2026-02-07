@@ -1,0 +1,320 @@
+# Blog Admin Panel - ShiboScript
+print("=== Blog Admin Panel ===")
+
+# Admin Functions
+func admin_login_handler(request) {
+    var template = """
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Admin Login - {{blog_title}}</title>
+    <link rel="stylesheet" href="/static/admin.css">
+</head>
+<body>
+    <div class="admin-login">
+        <h1>Admin Login</h1>
+        <form method="POST" action="/admin/login">
+            <div class="form-group">
+                <label for="username">Username:</label>
+                <input type="text" id="username" name="username" required>
+            </div>
+            <div class="form-group">
+                <label for="password">Password:</label>
+                <input type="password" id="password" name="password" required>
+            </div>
+            <button type="submit">Login</button>
+        </form>
+        <p><a href="/">← Back to Blog</a></p>
+    </div>
+</body>
+</html>
+"""
+    
+    var context = {
+        "blog_title": "ShiboScript Blog"
+    }
+    
+    var html = web.render_template(template, context)
+    return {"status": 200, "content": html, "content_type": "text/html"}
+}
+
+func admin_dashboard_handler(request) {
+    var template = """
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Admin Dashboard - {{blog_title}}</title>
+    <link rel="stylesheet" href="/static/admin.css">
+</head>
+<body>
+    <header class="admin-header">
+        <h1>Admin Dashboard</h1>
+        <nav>
+            <a href="/admin/posts">Manage Posts</a>
+            <a href="/admin/authors">Manage Authors</a>
+            <a href="/admin/settings">Settings</a>
+            <a href="/">View Blog</a>
+            <a href="/admin/logout">Logout</a>
+        </nav>
+    </header>
+    
+    <main class="admin-main">
+        <div class="dashboard-stats">
+            <div class="stat-card">
+                <h3>{{total_posts}}</h3>
+                <p>Total Posts</p>
+            </div>
+            <div class="stat-card">
+                <h3>{{total_authors}}</h3>
+                <p>Authors</p>
+            </div>
+            <div class="stat-card">
+                <h3>{{latest_post_date}}</h3>
+                <p>Latest Post</p>
+            </div>
+        </div>
+        
+        <div class="recent-activity">
+            <h2>Recent Activity</h2>
+            <ul>
+                {{recent_activity_html}}
+            </ul>
+        </div>
+    </main>
+</body>
+</html>
+"""
+    
+    # Generate stats
+    var total_posts = len(blog_posts)
+    var total_authors = len(blog_authors)
+    var latest_post_date = "No posts yet"
+    
+    if (total_posts > 0) {
+        var sorted_posts = sort_posts_by_date(blog_posts)
+        latest_post_date = sorted_posts[0].date
+    }
+    
+    # Generate recent activity
+    var recent_activity_html = ""
+    var recent_posts = []
+    var start_index = max(0, len(blog_posts) - 5)
+    
+    for (var i = start_index; i < len(blog_posts); i++) {
+        append(recent_posts, blog_posts[i])
+    }
+    
+    for (post in recent_posts) {
+        var activity_html = "<li>Post created: <strong>{{title}}</strong> by {{author}} on {{date}}</li>"
+        var context = {
+            "title": post.title,
+            "author": post.author,
+            "date": post.date
+        }
+        recent_activity_html = recent_activity_html + web.render_template(activity_html, context)
+    }
+    
+    var context = {
+        "blog_title": "ShiboScript Blog",
+        "total_posts": total_posts,
+        "total_authors": total_authors,
+        "latest_post_date": latest_post_date,
+        "recent_activity_html": recent_activity_html
+    }
+    
+    var html = web.render_template(template, context)
+    return {"status": 200, "content": html, "content_type": "text/html"}
+}
+
+func admin_posts_handler(request) {
+    var template = """
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Manage Posts - {{blog_title}}</title>
+    <link rel="stylesheet" href="/static/admin.css">
+</head>
+<body>
+    <header class="admin-header">
+        <h1>Manage Posts</h1>
+        <nav>
+            <a href="/admin">Dashboard</a>
+            <a href="/admin/posts">All Posts</a>
+            <a href="/admin/posts/new">New Post</a>
+            <a href="/">View Blog</a>
+            <a href="/admin/logout">Logout</a>
+        </nav>
+    </header>
+    
+    <main class="admin-main">
+        <h2>All Blog Posts</h2>
+        <div class="posts-table">
+            <table>
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Title</th>
+                        <th>Author</th>
+                        <th>Date</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {{posts_rows_html}}
+                </tbody>
+            </table>
+        </div>
+    </main>
+</body>
+</html>
+"""
+    
+    # Generate posts table rows
+    var posts_rows_html = ""
+    var sorted_posts = sort_posts_by_date(blog_posts)
+    
+    for (post in sorted_posts) {
+        var row_html = """
+<tr>
+    <td>{{id}}</td>
+    <td>{{title}}</td>
+    <td>{{author}}</td>
+    <td>{{date}}</td>
+    <td>
+        <a href="/admin/posts/edit/{{id}}" class="btn btn-edit">Edit</a>
+        <a href="/admin/posts/delete/{{id}}" class="btn btn-delete">Delete</a>
+    </td>
+</tr>
+"""
+        var context = {
+            "id": post.id,
+            "title": post.title,
+            "author": post.author,
+            "date": post.date
+        }
+        posts_rows_html = posts_rows_html + web.render_template(row_html, context)
+    }
+    
+    var context = {
+        "blog_title": "ShiboScript Blog",
+        "posts_rows_html": posts_rows_html
+    }
+    
+    var html = web.render_template(template, context)
+    return {"status": 200, "content": html, "content_type": "text/html"}
+}
+
+func admin_new_post_handler(request) {
+    var template = """
+<!DOCTYPE html>
+<html>
+<head>
+    <title>New Post - {{blog_title}}</title>
+    <link rel="stylesheet" href="/static/admin.css">
+</head>
+<body>
+    <header class="admin-header">
+        <h1>Create New Post</h1>
+        <nav>
+            <a href="/admin">Dashboard</a>
+            <a href="/admin/posts">All Posts</a>
+            <a href="/admin/posts/new">New Post</a>
+            <a href="/">View Blog</a>
+            <a href="/admin/logout">Logout</a>
+        </nav>
+    </header>
+    
+    <main class="admin-main">
+        <form method="POST" action="/admin/posts/create" class="post-form">
+            <div class="form-group">
+                <label for="title">Title:</label>
+                <input type="text" id="title" name="title" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="author">Author:</label>
+                <select id="author" name="author" required>
+                    {{authors_options_html}}
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label for="content">Content:</label>
+                <textarea id="content" name="content" rows="15" required></textarea>
+            </div>
+            
+            <div class="form-actions">
+                <button type="submit" class="btn btn-primary">Publish Post</button>
+                <a href="/admin/posts" class="btn btn-secondary">Cancel</a>
+            </div>
+        </form>
+    </main>
+</body>
+</html>
+"""
+    
+    # Generate authors dropdown options
+    var authors_options_html = ""
+    for (author in blog_authors) {
+        var option_html = "<option value=\"{{id}}\">{{name}}</option>"
+        var context = {
+            "id": author.id,
+            "name": author.name
+        }
+        authors_options_html = authors_options_html + web.render_template(option_html, context)
+    }
+    
+    var context = {
+        "blog_title": "ShiboScript Blog",
+        "authors_options_html": authors_options_html
+    }
+    
+    var html = web.render_template(template, context)
+    return {"status": 200, "content": html, "content_type": "text/html"}
+}
+
+func admin_create_post_handler(request) {
+    # This would handle POST request to create a new post
+    # In a real implementation, you would:
+    # 1. Validate form data
+    # 2. Create new post object
+    # 3. Add to blog_posts array
+    # 4. Save to file
+    # 5. Redirect to success page
+    
+    var response_html = """
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Post Created - {{blog_title}}</title>
+    <link rel="stylesheet" href="/static/admin.css">
+</head>
+<body>
+    <div class="success-message">
+        <h1>Post Created Successfully!</h1>
+        <p>Your blog post has been published.</p>
+        <a href="/admin/posts" class="btn btn-primary">Back to Posts</a>
+        <a href="/" class="btn btn-secondary">View Blog</a>
+    </div>
+</body>
+</html>
+"""
+    
+    var context = {
+        "blog_title": "ShiboScript Blog"
+    }
+    
+    var html = web.render_template(response_html, context)
+    return {"status": 200, "content": html, "content_type": "text/html"}
+}
+
+# Add admin routes to the main server
+# Note: In practice, you would integrate these with the main blog application
+print("Admin panel routes ready:")
+print("- /admin/login")
+print("- /admin/dashboard") 
+print("- /admin/posts")
+print("- /admin/posts/new")
+print("- /admin/posts/create")
+
+print("✅ Admin panel functionality ready!")

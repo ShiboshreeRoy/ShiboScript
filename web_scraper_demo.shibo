@@ -1,0 +1,60 @@
+# Web Scraper Application using Advanced ShiboScript Features
+
+print("=== Web Scraper Application ===");
+
+# Setup logging
+logging.setup("scraper", "scraper.log");
+logging.info("Web scraper started");
+
+# Create data directory
+fs.mkdir("scraped_data");
+
+# Simulate web scraping with error handling
+try {
+    print("Fetching data from web...");
+    
+    # Simulate fetching data
+    var sample_data = [
+        {"title": "Article 1", "content": "Content of article 1"},
+        {"title": "Article 2", "content": "Content of article 2"},
+        {"title": "Article 3", "content": "Content of article 3"}
+    ];
+    
+    # Save scraped data to database
+    var db_conn = db.connect("scraped_articles.db");
+    db.execute(db_conn, "CREATE TABLE IF NOT EXISTS articles (id INTEGER PRIMARY KEY, title TEXT, content TEXT, scraped_at TIMESTAMP)");
+    
+    var current_time = datetime_utils.format_datetime("%Y-%m-%d %H:%M:%S");
+    for (article in sample_data) {
+        db.execute(db_conn, "INSERT INTO articles (title, content, scraped_at) VALUES (?, ?, ?)", 
+                  [article.title, article.content, current_time]);
+    }
+    
+    # Fetch and display saved articles
+    var articles = db.fetch_all(db_conn, "SELECT * FROM articles");
+    print("Saved articles: " + str(len(articles)));
+    
+    # Create a report
+    var report_filename = "scraped_data/report_" + str(uuid.generate()) + ".txt";
+    var report_content = "Scraping Report\n";
+    report_content += "Generated at: " + current_time + "\n";
+    report_content += "Total articles scraped: " + str(len(articles)) + "\n";
+    report_content += "Articles:\n";
+    
+    for (article in articles) {
+        report_content += "  - " + article[1] + "\n";  # Title is at index 1
+    }
+    
+    fs.write_lines(report_filename, [report_content]);
+    print("Report saved to: " + report_filename);
+    
+    logging.info("Successfully scraped and saved " + str(len(articles)) + " articles");
+    
+} catch (e) {
+    print("Error occurred: " + e);
+    logging.error("Error in web scraper: " + e);
+}
+
+# Cleanup
+print("Web scraping task completed");
+logging.info("Web scraper finished");

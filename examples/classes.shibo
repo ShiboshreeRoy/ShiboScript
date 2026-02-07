@@ -1,0 +1,66 @@
+# Class Example - Animal Hierarchy
+class Animal {
+    var name
+    var species
+    
+    func init(name, species) {
+        self.name = name
+        self.species = species
+    }
+    
+    func speak() {
+        print(self.name + " makes a sound")
+    }
+    
+    func info() {
+        return self.name + " is a " + self.species
+    }
+}
+
+class Dog(Animal) {
+    func init(name) {
+        super.init(name, "Dog")
+    }
+    
+    func speak() {
+        print(self.name + " says woof!")
+    }
+    
+    func fetch() {
+        print(self.name + " fetches the ball!")
+    }
+}
+
+class Cat(Animal) {
+    func init(name) {
+        super.init(name, "Cat")
+    }
+    
+    func speak() {
+        print(self.name + " says meow!")
+    }
+    
+    func climb() {
+        print(self.name + " climbs the tree!")
+    }
+}
+
+# Create animals
+var dog = Dog("Buddy")
+var cat = Cat("Whiskers")
+
+# Test polymorphism
+dog.speak()
+cat.speak()
+
+# Test specific methods
+dog.fetch()
+cat.climb()
+
+# Test inheritance
+print(dog.info())
+print(cat.info())
+
+# Test instanceof
+print("dog instanceof Dog: " + (dog instanceof Dog))
+print("dog instanceof Animal: " + (dog instanceof Animal))

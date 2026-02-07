@@ -1,0 +1,364 @@
+# Data Analyzer - Real World Project
+# Process and analyze data files with statistical insights
+
+class DataAnalyzer {
+    var data
+    var headers
+    var statistics
+    
+    func init() {
+        self.data = []
+        self.headers = []
+        self.statistics = {}
+    }
+    
+    func load_csv(filename) {
+        print("Loading CSV file: " + filename)
+        
+        if (!os.exists(filename)) {
+            print("Error: File not found - " + filename)
+            return false
+        }
+        
+        var content = file.read(filename)
+        var lines = content.split("\n")
+        
+        if (len(lines) == 0) {
+            print("Error: Empty file")
+            return false
+        }
+        
+        # Parse headers
+        self.headers = lines[0].split(",")
+        print("Headers: " + json.encode(self.headers))
+        
+        # Parse data rows
+        self.data = []
+        for (i = 1; i < len(lines); i++) {
+            if (lines[i].strip() != "") {
+                var row = lines[i].split(",")
+                if (len(row) == len(self.headers)) {
+                    self.data.append(row)
+                }
+            }
+        }
+        
+        print("Loaded " + len(self.data) + " rows of data")
+        return true
+    }
+    
+    func load_json(filename) {
+        print("Loading JSON file: " + filename)
+        
+        if (!os.exists(filename)) {
+            print("Error: File not found - " + filename)
+            return false
+        }
+        
+        var content = file.read(filename)
+        var json_data = json.decode(content)
+        
+        if (type(json_data) == "list" && len(json_data) > 0) {
+            # Assume first item has all keys
+            self.headers = keys(json_data[0])
+            self.data = []
+            
+            for (item in json_data) {
+                var row = []
+                for (header in self.headers) {
+                    row.append(item[header])
+                }
+                self.data.append(row)
+            }
+            
+            print("Loaded " + len(self.data) + " records")
+            return true
+        }
+        
+        print("Error: Invalid JSON format")
+        return false
+    }
+    
+    func get_column_index(column_name) {
+        for (i = 0; i < len(self.headers); i++) {
+            if (self.headers[i] == column_name) {
+                return i
+            }
+        }
+        return -1
+    }
+    
+    func get_column_data(column_name) {
+        var index = self.get_column_index(column_name)
+        if (index == -1) {
+            print("Column not found: " + column_name)
+            return []
+        }
+        
+        var column_data = []
+        for (row in self.data) {
+            column_data.append(row[index])
+        }
+        return column_data
+    }
+    
+    func convert_to_numeric(data_list) {
+        var numeric_data = []
+        for (item in data_list) {
+            var num = float(item)
+            if (num != null) {
+                numeric_data.append(num)
+            }
+        }
+        return numeric_data
+    }
+    
+    func calculate_statistics(column_name) {
+        var column_data = self.get_column_data(column_name)
+        if (len(column_data) == 0) {
+            return null
+        }
+        
+        # Try to convert to numeric data
+        var numeric_data = self.convert_to_numeric(column_data)
+        
+        if (len(numeric_data) > 0) {
+            # Numeric statistics
+            var sorted_data = sort(numeric_data)
+            var n = len(sorted_data)
+            
+            var stats = {
+                "column": column_name,
+                "type": "numeric",
+                "count": n,
+                "sum": sum(numeric_data),
+                "mean": sum(numeric_data) / n,
+                "min": sorted_data[0],
+                "max": sorted_data[n - 1],
+                "range": sorted_data[n - 1] - sorted_data[0]
+            }
+            
+            # Median
+            if (n % 2 == 0) {
+                stats.median = (sorted_data[n/2 - 1] + sorted_data[n/2]) / 2
+            } else {
+                stats.median = sorted_data[(n - 1) / 2]
+            }
+            
+            # Standard deviation (simplified)
+            var variance_sum = 0
+            for (value in numeric_data) {
+                var diff = value - stats.mean
+                variance_sum = variance_sum + (diff * diff)
+            }
+            stats.std_dev = math.sqrt(variance_sum / n)
+            
+            self.statistics[column_name] = stats
+            return stats
+        } else {
+            # Categorical statistics
+            var frequency = {}
+            for (item in column_data) {
+                if (!(item in frequency)) {
+                    frequency[item] = 0
+                }
+                frequency[item] = frequency[item] + 1
+            }
+            
+            var stats = {
+                "column": column_name,
+                "type": "categorical",
+                "count": len(column_data),
+                "unique_values": len(frequency),
+                "frequencies": frequency
+            }
+            
+            self.statistics[column_name] = stats
+            return stats
+        }
+    }
+    
+    func find_correlations() {
+        print("=== Finding Correlations ===")
+        var correlations = {}
+        
+        # Find numeric columns
+        var numeric_columns = []
+        for (header in self.headers) {
+            var column_data = self.get_column_data(header)
+            var numeric_data = self.convert_to_numeric(column_data)
+            if (len(numeric_data) > 0) {
+                numeric_columns.append(header)
+            }
+        }
+        
+        # Calculate correlations between numeric columns
+        for (i = 0; i < len(numeric_columns); i++) {
+            for (j = i + 1; j < len(numeric_columns); j++) {
+                var col1 = numeric_columns[i]
+                var col2 = numeric_columns[j]
+                
+                var data1 = self.convert_to_numeric(self.get_column_data(col1))
+                var data2 = self.convert_to_numeric(self.get_column_data(col2))
+                
+                if (len(data1) == len(data2) && len(data1) > 1) {
+                    var correlation = self.calculate_correlation(data1, data2)
+                    var key = col1 + " vs " + col2
+                    correlations[key] = correlation
+                    print(key + ": " + round(correlation, 3))
+                }
+            }
+        }
+        
+        return correlations
+    }
+    
+    func calculate_correlation(x_data, y_data) {
+        var n = len(x_data)
+        var sum_x = sum(x_data)
+        var sum_y = sum(y_data)
+        var sum_xy = 0
+        var sum_x2 = 0
+        var sum_y2 = 0
+        
+        for (i = 0; i < n; i++) {
+            sum_xy = sum_xy + (x_data[i] * y_data[i])
+            sum_x2 = sum_x2 + (x_data[i] * x_data[i])
+            sum_y2 = sum_y2 + (y_data[i] * y_data[i])
+        }
+        
+        var numerator = (n * sum_xy) - (sum_x * sum_y)
+        var denominator = math.sqrt(((n * sum_x2) - (sum_x * sum_x)) * ((n * sum_y2) - (sum_y * sum_y)))
+        
+        if (denominator == 0) {
+            return 0
+        }
+        
+        return numerator / denominator
+    }
+    
+    func filter_data(column_name, condition, value) {
+        var index = self.get_column_index(column_name)
+        if (index == -1) {
+            return []
+        }
+        
+        var filtered_data = []
+        for (row in self.data) {
+            var cell_value = row[index]
+            
+            var match = false
+            if (condition == "equals" && cell_value == value) {
+                match = true
+            } else if (condition == "contains" && cell_value.find(value) != -1) {
+                match = true
+            } else if (condition == "greater" && float(cell_value) > float(value)) {
+                match = true
+            } else if (condition == "less" && float(cell_value) < float(value)) {
+                match = true
+            }
+            
+            if (match) {
+                filtered_data.append(row)
+            }
+        }
+        
+        print("Filtered data: " + len(filtered_data) + " rows match '" + condition + " " + value + "' in " + column_name)
+        return filtered_data
+    }
+    
+    func generate_summary_report() {
+        print("=== Data Analysis Summary ===")
+        
+        print("Dataset Info:")
+        print("  Rows: " + len(self.data))
+        print("  Columns: " + len(self.headers))
+        print("  Headers: " + json.encode(self.headers))
+        
+        print("\nColumn Statistics:")
+        for (header in self.headers) {
+            var stats = self.calculate_statistics(header)
+            if (stats != null) {
+                print("  " + header + ":")
+                if (stats.type == "numeric") {
+                    print("    Type: Numeric")
+                    print("    Mean: " + round(stats.mean, 2))
+                    print("    Range: " + stats.min + " to " + stats.max)
+                } else {
+                    print("    Type: Categorical")
+                    print("    Unique values: " + stats.unique_values)
+                }
+            }
+        }
+        
+        # Find correlations
+        self.find_correlations()
+        
+        # Save report
+        var report = {
+            "dataset_info": {
+                "rows": len(self.data),
+                "columns": len(self.headers),
+                "headers": self.headers
+            },
+            "statistics": self.statistics,
+            "generated_date": datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        }
+        
+        var report_json = json.encode(report)
+        file.write("data_analysis_report.json", report_json)
+        print("\nReport saved to: data_analysis_report.json")
+        
+        return report
+    }
+}
+
+# Demo data file creation
+func create_sample_data() {
+    var csv_data = """name,age,salary,department,experience
+John Doe,28,50000,Engineering,3
+Jane Smith,32,65000,Marketing,5
+Bob Johnson,45,75000,Engineering,10
+Alice Brown,29,55000,Sales,2
+Charlie Wilson,35,70000,Engineering,7
+Diana Lee,27,48000,Marketing,1
+Edward Davis,41,80000,Management,12
+Fiona Clark,33,62000,Sales,4"""
+
+    file.write("sample_employees.csv", csv_data)
+    print("Sample data created: sample_employees.csv")
+}
+
+# Run data analyzer demo
+func data_analyzer_demo() {
+    print("=== Data Analyzer Demo ===")
+    
+    # Create sample data
+    create_sample_data()
+    
+    var analyzer = DataAnalyzer()
+    
+    # Load data
+    if (!analyzer.load_csv("sample_employees.csv")) {
+        print("Failed to load data")
+        return null
+    }
+    
+    # Generate comprehensive report
+    var report = analyzer.generate_summary_report()
+    
+    # Example filtering
+    print("\n--- Data Filtering Examples ---")
+    var high_salary_employees = analyzer.filter_data("salary", "greater", "60000")
+    var engineering_staff = analyzer.filter_data("department", "equals", "Engineering")
+    var experienced_employees = analyzer.filter_data("experience", "greater", "5")
+    
+    print("\nHigh salary employees (>60000): " + len(high_salary_employees))
+    print("Engineering staff: " + len(engineering_staff))
+    print("Experienced employees (>5 years): " + len(experienced_employees))
+    
+    return analyzer
+}
+
+# Execute the data analyzer
+var data_analyzer = data_analyzer_demo()
