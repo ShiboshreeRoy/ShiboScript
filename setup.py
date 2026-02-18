@@ -1,13 +1,16 @@
 from setuptools import setup, find_packages
+import os
 
-with open("README.md", "r", encoding="utf-8") as fh:
-    long_description = fh.read()
+# Read the contents of your README file
+this_directory = os.path.abspath(os.path.dirname(__file__))
+with open(os.path.join(this_directory, "README.md"), encoding="utf-8") as f:
+    long_description = f.read()
 
 setup(
     name="shiboscript",
     version="1.0.0",
     author="Shiboscript Team",
-    author_email="shiboshreeroycse@gmail.com",
+    author_email="shiboscript@example.com",
     description="A Python-like scripting language with advanced features",
     long_description=long_description,
     long_description_content_type="text/markdown",
