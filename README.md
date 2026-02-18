@@ -1,6 +1,6 @@
 # ShiboScript 🐕 - Professional Edition
 
-A powerful, Python-like scripting language with advanced features designed for learning programming concepts, rapid prototyping, and real-world applications. Features a complete compiler architecture with bytecode generation and optimization.
+ShiboScript is a lightweight, beginner-friendly scripting language designed for educational purposes and small-scale automation tasks. It provides an intuitive syntax to help users learn programming concepts while supporting practical features such as variables, functions, control structures, and built-in operations for math, file
 
 ## Table of Contents
 1. [Features](#features)
