@@ -931,6 +931,12 @@ For immediate use without installation, you can run ShiboScript directly:
    shiboc -r script.shibo
    ```
 
+5. **Easy Installation Scripts:**
+   We provide platform-specific installation scripts for easy setup:
+   - **Windows**: Run `install_windows.bat` as Administrator
+   - **Linux**: Run `./install_linux.sh`
+   - **Alternative runners**: Use `run_windows.bat` or `run_linux.sh` for portable usage
+
 The `run_shiboscript.py` script handles all the path setup and imports needed to run ShiboScript from this project structure. This is the easiest way to get started with ShiboScript without needing to install it via pip.
 
 For a permanent installation, you can install via pip:
@@ -939,4 +945,6 @@ pip install -e .
 ```
 
 Then you can use the `shiboscript` and `shiboc` commands directly.
+
+For detailed installation instructions, see [INSTALL.md](INSTALL.md).
 
