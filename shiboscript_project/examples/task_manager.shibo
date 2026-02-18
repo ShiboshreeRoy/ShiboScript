@@ -1,0 +1,349 @@
+# Task Manager - Real World Project
+# Project management and task tracking system
+
+class Task {
+    var id
+    var title
+    var description
+    var status  # pending, in_progress, completed, cancelled
+    var priority  # low, medium, high, urgent
+    var created_date
+    var due_date
+    var completed_date
+    var assignee
+    var tags
+    
+    func init(title, description, priority, due_date, assignee) {
+        self.id = self.generate_id()
+        self.title = title
+        self.description = description
+        self.status = "pending"
+        self.priority = priority
+        self.created_date = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        self.due_date = due_date
+        self.completed_date = null
+        self.assignee = assignee
+        self.tags = []
+    }
+    
+    func generate_id() {
+        return "TASK_" + random.string(8)
+    }
+    
+    func update_status(new_status) {
+        self.status = new_status
+        if (new_status == "completed") {
+            self.completed_date = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        }
+        print("Task " + self.id + " status updated to: " + new_status)
+    }
+    
+    func add_tag(tag) {
+        if (!(tag in self.tags)) {
+            self.tags.append(tag)
+            print("Tag '" + tag + "' added to task " + self.id)
+        }
+    }
+    
+    func get_info() {
+        return {
+            "id": self.id,
+            "title": self.title,
+            "description": self.description,
+            "status": self.status,
+            "priority": self.priority,
+            "created_date": self.created_date,
+            "due_date": self.due_date,
+            "completed_date": self.completed_date,
+            "assignee": self.assignee,
+            "tags": self.tags
+        }
+    }
+}
+
+class TaskManager {
+    var tasks
+    var projects
+    var team_members
+    
+    func init() {
+        self.tasks = []
+        self.projects = {}
+        self.team_members = []
+    }
+    
+    func add_task(title, description, priority, due_date, assignee) {
+        var task = Task(title, description, priority, due_date, assignee)
+        self.tasks.append(task)
+        print("Task created: " + task.id + " - " + title)
+        return task
+    }
+    
+    func get_task_by_id(task_id) {
+        for (task in self.tasks) {
+            if (task.id == task_id) {
+                return task
+            }
+        }
+        return null
+    }
+    
+    func get_tasks_by_status(status) {
+        var filtered_tasks = []
+        for (task in self.tasks) {
+            if (task.status == status) {
+                filtered_tasks.append(task)
+            }
+        }
+        return filtered_tasks
+    }
+    
+    func get_tasks_by_assignee(assignee) {
+        var filtered_tasks = []
+        for (task in self.tasks) {
+            if (task.assignee == assignee) {
+                filtered_tasks.append(task)
+            }
+        }
+        return filtered_tasks
+    }
+    
+    func get_overdue_tasks() {
+        var overdue_tasks = []
+        var current_date = datetime.now()
+        
+        for (task in self.tasks) {
+            if (task.status != "completed" && task.due_date != null) {
+                var due_datetime = datetime.strptime(task.due_date, "%Y-%m-%d")
+                if (due_datetime < current_date) {
+                    overdue_tasks.append(task)
+                }
+            }
+        }
+        return overdue_tasks
+    }
+    
+    func get_tasks_by_priority(priority) {
+        var filtered_tasks = []
+        for (task in self.tasks) {
+            if (task.priority == priority) {
+                filtered_tasks.append(task)
+            }
+        }
+        return filtered_tasks
+    }
+    
+    func add_team_member(name, role) {
+        var member = {
+            "name": name,
+            "role": role,
+            "joined_date": datetime.now().strftime("%Y-%m-%d")
+        }
+        self.team_members.append(member)
+        print("Team member added: " + name + " (" + role + ")")
+        return member
+    }
+    
+    func create_project(project_name, description) {
+        var project_id = "PROJ_" + random.string(6)
+        self.projects[project_id] = {
+            "name": project_name,
+            "description": description,
+            "created_date": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+            "tasks": [],
+            "status": "active"
+        }
+        print("Project created: " + project_id + " - " + project_name)
+        return project_id
+    }
+    
+    func assign_task_to_project(task_id, project_id) {
+        if (project_id in self.projects) {
+            self.projects[project_id].tasks.append(task_id)
+            print("Task " + task_id + " assigned to project " + project_id)
+            return true
+        }
+        print("Project not found: " + project_id)
+        return false
+    }
+    
+    func generate_report() {
+        var total_tasks = len(self.tasks)
+        var completed_tasks = len(self.get_tasks_by_status("completed"))
+        var pending_tasks = len(self.get_tasks_by_status("pending"))
+        var in_progress_tasks = len(self.get_tasks_by_status("in_progress"))
+        var overdue_tasks = len(self.get_overdue_tasks())
+        
+        var priority_breakdown = {
+            "urgent": len(self.get_tasks_by_priority("urgent")),
+            "high": len(self.get_tasks_by_priority("high")),
+            "medium": len(self.get_tasks_by_priority("medium")),
+            "low": len(self.get_tasks_by_priority("low"))
+        }
+        
+        var report = {
+            "summary": {
+                "total_tasks": total_tasks,
+                "completed": completed_tasks,
+                "pending": pending_tasks,
+                "in_progress": in_progress_tasks,
+                "overdue": overdue_tasks,
+                "completion_rate": (completed_tasks * 100) / max(total_tasks, 1)
+            },
+            "priority_breakdown": priority_breakdown,
+            "team_members": len(self.team_members),
+            "projects": len(self.projects),
+            "generated_date": datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        }
+        
+        print("=== Task Manager Report ===")
+        print("Total Tasks: " + total_tasks)
+        print("Completed: " + completed_tasks + " (" + report.summary.completion_rate + "%)")
+        print("Pending: " + pending_tasks)
+        print("In Progress: " + in_progress_tasks)
+        print("Overdue: " + overdue_tasks)
+        print("Team Members: " + len(self.team_members))
+        print("Active Projects: " + len(self.projects))
+        
+        return report
+    }
+    
+    func save_to_file(filename) {
+        var data = {
+            "tasks": [],
+            "projects": self.projects,
+            "team_members": self.team_members
+        }
+        
+        # Convert tasks to serializable format
+        for (task in self.tasks) {
+            data.tasks.append(task.get_info())
+        }
+        
+        var json_data = json.encode(data)
+        file.write(filename, json_data)
+        print("Task data saved to: " + filename)
+        return true
+    }
+    
+    func load_from_file(filename) {
+        if (!os.exists(filename)) {
+            print("File not found: " + filename)
+            return false
+        }
+        
+        var json_data = file.read(filename)
+        var data = json.decode(json_data)
+        
+        # Restore projects and team members
+        self.projects = data.projects
+        self.team_members = data.team_members
+        
+        # Restore tasks
+        self.tasks = []
+        for (task_data in data.tasks) {
+            var task = Task(
+                task_data.title,
+                task_data.description,
+                task_data.priority,
+                task_data.due_date,
+                task_data.assignee
+            )
+            task.id = task_data.id
+            task.status = task_data.status
+            task.created_date = task_data.created_date
+            task.completed_date = task_data.completed_date
+            task.tags = task_data.tags
+            self.tasks.append(task)
+        }
+        
+        print("Task data loaded from: " + filename)
+        print("Loaded " + len(self.tasks) + " tasks")
+        return true
+    }
+}
+
+# Run task manager demo
+func task_manager_demo() {
+    print("=== Task Manager Demo ===")
+    
+    var tm = TaskManager()
+    
+    # Add team members
+    print("\n--- Adding Team Members ---")
+    tm.add_team_member("Alice Johnson", "Developer")
+    tm.add_team_member("Bob Smith", "Designer")
+    tm.add_team_member("Carol Davis", "Project Manager")
+    
+    # Create projects
+    print("\n--- Creating Projects ---")
+    var web_project = tm.create_project("Website Redesign", "Complete redesign of company website")
+    var mobile_project = tm.create_project("Mobile App", "Develop new mobile application")
+    
+    # Add tasks
+    print("\n--- Creating Tasks ---")
+    var task1 = tm.add_task(
+        "Design Homepage",
+        "Create new homepage design with modern UI",
+        "high",
+        "2024-02-15",
+        "Bob Smith"
+    )
+    task1.add_tag("design")
+    task1.add_tag("frontend")
+    
+    var task2 = tm.add_task(
+        "Implement Authentication",
+        "Add user login and registration system",
+        "urgent",
+        "2024-02-10",
+        "Alice Johnson"
+    )
+    task2.add_tag("backend")
+    task2.add_tag("security")
+    
+    var task3 = tm.add_task(
+        "Database Schema Design",
+        "Design and implement database structure",
+        "high",
+        "2024-02-12",
+        "Alice Johnson"
+    )
+    task3.add_tag("database")
+    task3.add_tag("backend")
+    
+    # Assign tasks to projects
+    print("\n--- Assigning Tasks to Projects ---")
+    tm.assign_task_to_project(task1.id, web_project)
+    tm.assign_task_to_project(task2.id, web_project)
+    tm.assign_task_to_project(task3.id, mobile_project)
+    
+    # Update task status
+    print("\n--- Updating Task Status ---")
+    task1.update_status("in_progress")
+    task2.update_status("completed")
+    
+    # Generate reports
+    print("\n--- Generating Reports ---")
+    var report = tm.generate_report()
+    
+    # Show overdue tasks
+    print("\n--- Overdue Tasks ---")
+    var overdue = tm.get_overdue_tasks()
+    if (len(overdue) > 0) {
+        for (task in overdue) {
+            print("⚠ " + task.id + ": " + task.title + " (Due: " + task.due_date + ")")
+        }
+    } else {
+        print("No overdue tasks")
+    }
+    
+    # Save data
+    print("\n--- Saving Data ---")
+    tm.save_to_file("tasks.json")
+    
+    return tm
+}
+
+# Execute the task manager
+var task_manager = task_manager_demo()

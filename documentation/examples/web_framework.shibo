@@ -1,0 +1,77 @@
+# Web Framework Example
+print("=== Web Framework Demo ===")
+
+# Create web server configuration
+var server = web.create_web_server(8080)
+print("Server created on port: " + server.port)
+
+# Add routes
+func home_handler(request) {
+    return web.create_api_response("success", {"message": "Welcome to ShiboScript Web Server!"})
+}
+
+func user_handler(request) {
+    var user_id = request.params.id
+    return web.create_api_response("success", {"user_id": user_id, "name": "User " + user_id})
+}
+
+server = web.add_route(server, "/", "GET", home_handler)
+server = web.add_route(server, "/user/:id", "GET", user_handler)
+
+print("Routes configured: " + json.encode(keys(server.routes)))
+
+# Add middleware
+func logging_middleware(request, next) {
+    print("Request: " + request.method + " " + request.path)
+    var response = next(request)
+    print("Response status: " + response.status)
+    return response
+}
+
+server = web.add_middleware(server, logging_middleware)
+
+# Template rendering
+var template = "<html><body><h1>Hello {{name}}!</h1><p>Welcome to {{site}}</p></body></html>"
+var context = {
+    "name": "Developer",
+    "site": "ShiboScript Web"
+}
+
+var rendered_html = web.render_template(template, context)
+print("Rendered template: " + rendered_html)
+
+# Static file serving
+server = web.serve_static_file(server, "/static/style.css", "assets/style.css")
+server = web.serve_static_file(server, "/static/app.js", "assets/app.js")
+
+print("Static files configured: " + json.encode(keys(server.static_files)))
+
+# Simulate form processing
+var sample_html = """
+<form action="/submit" method="post">
+    <input type="text" name="username" value="john_doe">
+    <input type="email" name="email" value="john@example.com">
+    <input type="submit" value="Submit">
+</form>
+"""
+
+var form_data = web.html_form_data(sample_html)
+print("Form data extracted: " + json.encode(form_data))
+
+# CSS parsing example
+var sample_css = """
+body {
+    margin: 0;
+    padding: 20px;
+    font-family: Arial, sans-serif;
+}
+.header {
+    background-color: #333;
+    color: white;
+}
+"""
+
+var css_rules = web.css_parse(sample_css)
+print("CSS rules parsed: " + json.encode(css_rules))
+
+print("✅ Web framework features working!")

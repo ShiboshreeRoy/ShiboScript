@@ -1,3 +1,0 @@
-# Scan ports on a target
-open_ports = net.port_scan("103.179.61.2", range(1, 1000))
-print("Open ports: "+open_ports)

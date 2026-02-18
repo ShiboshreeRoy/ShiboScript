@@ -1,3 +1,8 @@
-"""ShiboScript - A lightweight scripting language for education and automation"""
-__version__ = "0.3.0"
-__author__ = "ShiboShreeRoy"
+"""
+ShiboScript - A Python-like scripting language implementation
+"""
+
+from .shiboscript import *
+
+__version__ = "1.0.0"
+__author__ = "Shiboscript Team"

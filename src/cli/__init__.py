@@ -1,7 +1,7 @@
 """Command Line Interface for ShiboScript"""
 import sys
 import os
-from .core import run_file, repl
+from ..shiboscript.core import run_file, repl
 
 def main():
     """Main CLI entry point"""

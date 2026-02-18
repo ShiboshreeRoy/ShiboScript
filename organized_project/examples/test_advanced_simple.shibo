@@ -1,0 +1,64 @@
+# Test Advanced Data Structures
+print("=== Testing Advanced Data Structures ===")
+
+# Test Set
+var my_set = Set([1, 2, 3, 4])
+my_set.add(5)
+print("Set size: " + my_set.size())
+print("Contains 3: " + my_set.contains(3))
+print("Set as list: " + str(my_set.to_list()))
+
+# Test Queue
+var my_queue = Queue()
+my_queue.enqueue("first")
+my_queue.enqueue("second")
+my_queue.enqueue("third")
+print("Queue front: " + my_queue.front())
+print("Queue size: " + my_queue.size())
+var dequeued = my_queue.dequeue()
+print("Dequeued: " + dequeued)
+print("New queue size: " + my_queue.size())
+
+# Test Stack
+var my_stack = Stack()
+my_stack.push("bottom")
+my_stack.push("middle")
+my_stack.push("top")
+print("Stack peek: " + my_stack.peek())
+print("Stack size: " + my_stack.size())
+var popped = my_stack.pop()
+print("Popped: " + popped)
+print("New stack size: " + my_stack.size())
+
+# Test functional programming
+func double(x) {
+    return x * 2
+}
+
+func is_even(x) {
+    return x % 2 == 0
+}
+
+func add(acc, x) {
+    return acc + x
+}
+
+var numbers = [1, 2, 3, 4, 5]
+var doubled = map(double, numbers)
+print("Doubled numbers: " + str(doubled))
+
+var evens = filter(is_even, numbers)
+print("Even numbers: " + str(evens))
+
+var sum_result = reduce(add, numbers, 0)
+print("Sum of numbers: " + sum_result)
+
+# Test advanced utilities
+var nested_list = [1, [2, 3], [4, [5, 6]], 7]
+var flat_list = flatten_list(nested_list)
+print("Flattened list: " + str(flat_list))
+
+var chunked = chunk_list(numbers, 2)
+print("Chunked list: " + str(chunked))
+
+print("✅ All advanced data structures working!")

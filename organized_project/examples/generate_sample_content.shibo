@@ -1,0 +1,76 @@
+# Sample Blog Posts Generator
+print("=== Generating Sample Blog Content ===")
+
+# Create sample blog posts
+var sample_posts = [
+    {
+        "id": 1,
+        "title": "Introduction to ShiboScript",
+        "author": "Shibo Script",
+        "date": "2024-01-15",
+        "content": "Welcome to the ShiboScript blog! ShiboScript is a lightweight, educational scripting language designed for learning programming concepts and automation tasks. In this first post, we'll explore what makes ShiboScript special and how it can help you learn programming.\n\nShiboScript features a simple, intuitive syntax that's easy to learn but powerful enough for real-world applications. Whether you're a beginner taking your first steps in programming or an experienced developer looking for a lightweight automation tool, ShiboScript has something to offer.\n\nKey features include:\n- Simple, readable syntax\n- Built-in web development capabilities\n- Object-oriented programming support\n- Rich standard library\n- Cross-platform compatibility\n\nStay tuned for more posts where we'll dive deeper into specific features and use cases!"
+    },
+    {
+        "id": 2,
+        "title": "Building Web Applications with ShiboScript",
+        "author": "Shibo Script",
+        "date": "2024-01-20",
+        "content": "One of the most exciting features of ShiboScript is its web development capabilities. In this post, we'll explore how to build web applications using ShiboScript's built-in web framework.\n\nShiboScript provides a comprehensive set of tools for web development:\n\n**HTTP Client**: Make requests to external APIs and web services\n**HTML Processing**: Parse and manipulate HTML content\n**CSS Parsing**: Work with CSS stylesheets programmatically\n**Web Framework**: Build complete web applications with routing and middleware\n**Template Rendering**: Create dynamic HTML content\n\nLet's look at a simple example of creating a web server:\n\n```\nvar server = web.create_web_server(8080)\nserver = web.add_route(server, \"/\", \"GET\", home_handler)\nserver = web.add_middleware(server, logging_middleware)\n```\n\nThis creates a web server on port 8080 with a single route and middleware for logging. The possibilities are endless when it comes to what you can build with ShiboScript!"
+    },
+    {
+        "id": 3,
+        "title": "Data Processing and Analysis",
+        "author": "Shibo Script",
+        "date": "2024-01-25",
+        "content": "Data processing is one of the most common tasks in programming, and ShiboScript makes it easy and intuitive. Whether you're working with JSON data, processing text files, or analyzing datasets, ShiboScript provides the tools you need.\n\n**Built-in Data Structures**\nShiboScript supports lists and dictionaries as first-class citizens:\n\n```\nvar numbers = [1, 2, 3, 4, 5]\nvar person = {\"name\": \"John\", \"age\": 30, \"city\": \"New York\"}\n```\n\n**JSON Processing**\nWorking with JSON data is straightforward:\n\n```\nvar data = json.decode(json_string)\nvar json_string = json.encode(data)\n```\n\n**File Operations**\nRead and write files with ease:\n\n```\nvar content = file.read(\"data.txt\")\nfile.write(\"output.txt\", processed_content)\n```\n\n**Advanced Operations**\nShiboScript also supports more advanced operations like filtering, sorting, and data transformation. These features make it perfect for data analysis tasks, log processing, and automation scripts.\n\nIn upcoming posts, we'll explore specific data processing scenarios and show you how to leverage ShiboScript's capabilities for your projects."
+    },
+    {
+        "id": 4,
+        "title": "Object-Oriented Programming in ShiboScript",
+        "author": "Shibo Script",
+        "date": "2024-02-01",
+        "content": "Object-oriented programming (OOP) is a fundamental paradigm in modern software development, and ShiboScript provides full support for OOP concepts. In this post, we'll explore how to use classes, inheritance, and encapsulation in ShiboScript.\n\n**Creating Classes**\nDefine classes using the familiar syntax:\n\n```\nclass Animal {\n    var name\n    var species\n    \n    func init(name, species) {\n        self.name = name\n        self.species = species\n    }\n    \n    func speak() {\n        return self.name + \" makes a sound\"\n    }\n}\n```\n\n**Inheritance**\nCreate subclasses that inherit from parent classes:\n\n```\nclass Dog(Animal) {\n    func speak() {\n        return self.name + \" says woof!\"\n    }\n}\n```\n\n**Encapsulation**\nUse private methods and properties to control access:\n\n```\nclass BankAccount {\n    var _balance = 0\n    \n    func deposit(amount) {\n        if (amount > 0) {\n            self._balance = self._balance + amount\n        }\n    }\n    \n    func get_balance() {\n        return self._balance\n    }\n}\n```\n\n**Polymorphism**\nUse the same interface for different underlying forms:\n\n```\nfunc make_animal_speak(animal) {\n    return animal.speak()\n}\n```\n\nThese OOP features make ShiboScript suitable for building complex, maintainable applications while keeping the syntax simple and approachable."
+    },
+    {
+        "id": 5,
+        "title": "Security Features and Best Practices",
+        "author": "Shibo Script",
+        "date": "2024-02-05",
+        "content": "Security is crucial in modern applications, and ShiboScript provides several built-in features to help you write secure code. In this post, we'll explore ShiboScript's security capabilities and best practices.\n\n**Cryptography**\nShiboScript includes built-in cryptographic functions:\n\n```\nvar hashed = crypto.sha256(\"sensitive_data\")\nvar encoded = base64.encode(\"secret_message\")\nvar decoded = base64.decode(encoded)\n```\n\n**JWT Authentication**\nImplement token-based authentication:\n\n```\nvar token = web.jwt_encode(payload, secret)\nvar verified = web.jwt_decode(token, secret)\n```\n\n**Input Validation**\nValidate data using JSON schema:\n\n```\nvar schema = {\"email\": \"string\", \"age\": \"number\"}\nvar result = web.validate_json_schema(data, schema)\n```\n\n**Security Best Practices**\n\n1. **Never store passwords in plain text**\n2. **Use environment variables for secrets**\n3. **Validate all user input**\n4. **Implement proper error handling**\n5. **Keep dependencies up to date**\n6. **Use HTTPS in production**\n7. **Implement rate limiting**\n8. **Log security events**\n\n**Example: Secure User Authentication**\n\n```\nfunc authenticate_user(username, password) {\n    var user = find_user(username)\n    if (user && crypto.sha256(password) == user.password_hash) {\n        var token = web.jwt_encode({\n            \"user_id\": user.id,\n            \"username\": username\n        }, SECRET_KEY)\n        return token\n    }\n    return null\n}\n```\n\nBy following these practices and leveraging ShiboScript's built-in security features, you can build applications that are both functional and secure."
+    }
+]
+
+# Create sample authors
+var sample_authors = [
+    {
+        "id": 1,
+        "name": "Shibo Script",
+        "email": "shibo@example.com",
+        "bio": "Creator and maintainer of the ShiboScript language. Passionate about making programming accessible to everyone."
+    },
+    {
+        "id": 2,
+        "name": "Web Developer",
+        "email": "webdev@example.com",
+        "bio": "Full-stack developer specializing in web technologies and user experience design."
+    },
+    {
+        "id": 3,
+        "name": "Data Scientist",
+        "email": "datasci@example.com",
+        "bio": "Data enthusiast who loves turning raw data into meaningful insights and visualizations."
+    }
+]
+
+# Save sample data
+var posts_json = json.encode(sample_posts)
+file.write("blog_posts.json", posts_json)
+print("Sample posts saved to blog_posts.json")
+
+var authors_json = json.encode(sample_authors)
+file.write("blog_authors.json", authors_json)
+print("Sample authors saved to blog_authors.json")
+
+print("✅ Sample content generated successfully!")
+print("Total posts: " + len(sample_posts))
+print("Total authors: " + len(sample_authors))

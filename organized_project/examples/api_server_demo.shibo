@@ -1,0 +1,100 @@
+# API Server Simulation using Advanced ShiboScript Features
+
+print("=== API Server Simulation ===");
+
+# Setup
+logging.setup("api_server", "api_server.log");
+logging.info("API Server started");
+
+# Initialize database
+var db_conn = db.connect("api_server.db");
+db.execute(db_conn, "CREATE TABLE IF NOT EXISTS users (id INTEGER PRIMARY KEY, username TEXT UNIQUE, email TEXT, created_at TIMESTAMP)");
+
+# Simulated API endpoints
+func create_user(username, email) {
+    try {
+        var current_time = datetime_utils.format_datetime("%Y-%m-%d %H:%M:%S");
+        db.execute(db_conn, "INSERT INTO users (username, email, created_at) VALUES (?, ?, ?)", 
+                  [username, email, current_time]);
+        var user = db.fetch_one(db_conn, "SELECT * FROM users WHERE username = ?", [username]);
+        logging.info("Created user: " + username);
+        return {"success": true, "user": user};
+    } catch (e) {
+        logging.error("Failed to create user " + username + ": " + e);
+        return {"success": false, "error": e};
+    }
+}
+
+func get_user(user_id) {
+    var user = db.fetch_one(db_conn, "SELECT * FROM users WHERE id = ?", [user_id]);
+    if (user != null) {
+        logging.info("Retrieved user: " + user[1]);  # username is at index 1
+        return {"success": true, "user": user};
+    } else {
+        return {"success": false, "error": "User not found"};
+    }
+}
+
+func get_all_users() {
+    var users = db.fetch_all(db_conn, "SELECT * FROM users ORDER BY created_at DESC");
+    logging.info("Retrieved " + str(len(users)) + " users");
+    return {"success": true, "users": users, "count": len(users)};
+}
+
+# Test the API functions
+print("Testing API endpoints...");
+
+# Create users
+var result1 = create_user("john_doe", "john@example.com");
+var result2 = create_user("jane_smith", "jane@example.com");
+var result3 = create_user("bob_wilson", "bob@example.com");
+
+print("Create user results:");
+print("  User 1: " + str(result1.success));
+print("  User 2: " + str(result2.success));
+print("  User 3: " + str(result3.success));
+
+# Get all users
+var all_users = get_all_users();
+print("Total users: " + str(all_users.count));
+
+# Get specific user
+if (all_users.count > 0) {
+    var first_user = all_users.users[0];  # Get first user
+    var user_detail = get_user(first_user[0]);  # ID is at index 0
+    print("First user: " + str(user_detail.user[1]));  # Username is at index 1
+}
+
+# Security demo: password hashing
+print("\nSecurity features:");
+var plain_password = "secure_password_123";
+var hashed_password = security.hash_password(plain_password);
+var is_correct = security.verify_password(plain_password, hashed_password);
+print("Password verification: " + str(is_correct));
+
+# UUID generation for unique identifiers
+print("\nUUID generation:");
+var session_id = uuid.generate();
+var request_id = uuid.generate4();
+print("Session ID: " + session_id);
+print("Request ID: " + request_id);
+
+# System monitoring
+print("\nSystem info:");
+var cpu_percent = system.get_cpu_percent();
+var mem_info = system.get_memory_info();
+print("CPU Usage: " + str(cpu_percent) + "%");
+print("Memory Total: " + str(math.floor(mem_info.total / (1024*1024))) + " MB");
+
+# Performance measurement
+print("\nPerformance test:");
+var start_time = time.now();
+var numbers = range(1, 10000);
+var squared_numbers = map(func(x) { return x * x; }, numbers);
+var end_time = time.now();
+var duration = end_time - start_time;
+print("Processed " + str(len(numbers)) + " numbers in " + str(duration) + " seconds");
+
+# Finalize
+logging.info("API Server simulation completed");
+print("\nAPI Server simulation completed successfully!");

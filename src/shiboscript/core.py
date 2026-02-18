@@ -1,4 +1,19 @@
-"""Core ShiboScript interpreter implementation"""
+"""Enhanced ShiboScript interpreter with real-world Python-like functionality"""
+
+import ast
+import dis
+import inspect
+import types
+from typing import Any, Dict, List, Optional, Union, Callable
+import ast
+import dis
+import inspect
+import types
+from typing import Any, Dict, List, Optional, Union, Callable
+
+
+# Enhanced AST Node Classes with more Python-like features
+
 import re
 from collections import namedtuple
 from PIL import Image
@@ -907,6 +922,60 @@ class Colors:
     ENDC = '\033[0m'
     BOLD = '\033[1m'
     UNDERLINE = '\033[4m'
+    MAGENTA = '\033[35m'  # Keyword color
+    YELLOW = '\033[93m'   # String/Operator color
+    CYAN = '\033[36m'     # Number color
+    GREEN = '\033[92m'    # Identifier color
+
+
+def highlight_syntax(code):
+    """Apply syntax highlighting to code for display in REPL."""
+    if not code.strip():
+        return code
+    
+    import re
+    
+    # Define ANSI color codes using chr(27) to ensure proper escape character
+    ESC = chr(27)
+    COLOR_RESET = ESC + '[0m'
+    COLOR_KEYWORD = ESC + '[35m'  # Magenta
+    COLOR_STRING = ESC + '[93m'   # Yellow
+    COLOR_NUMBER = ESC + '[36m'   # Cyan
+    COLOR_OPERATOR = ESC + '[93m' # Yellow
+    
+    # Define keywords for ShiboScript
+    keywords = [
+        'var', 'func', 'if', 'else', 'for', 'while', 'do', 'in', 'break', 'continue',
+        'return', 'try', 'catch', 'class', 'interface', 'implements', 'import', 'from',
+        'true', 'false', 'null', 'set', 'instanceof', 'print'
+    ]
+    
+    # Create a copy of the code to work with
+    result = code
+    
+    # Highlight strings first (to avoid highlighting keywords inside strings)
+    result = re.sub(r'(".*?")', COLOR_STRING + r'\1' + COLOR_RESET, result)  # Yellow for strings
+    result = re.sub(r"('.*?')", COLOR_STRING + r'\1' + COLOR_RESET, result)  # Yellow for strings
+    
+    # Highlight numbers
+    result = re.sub(r'\b(\d+\.\d+|\d+)\b', COLOR_NUMBER + r'\1' + COLOR_RESET, result)  # Cyan for numbers
+    
+    # Highlight keywords
+    for keyword in keywords:
+        # Use word boundaries to match whole words only
+        result = re.sub(r'\b(' + re.escape(keyword) + r')\b', COLOR_KEYWORD + r'\1' + COLOR_RESET, result)  # Magenta for keywords
+    
+    # Highlight operators
+    operators = ['+', '-', '*', '/', '=', '==', '!=', '<', '>', '<=', '>=', 
+                 '&&', '||', '!', '&', '|', '^', '~', '?', ':', '.', ',', ';', 
+                 '(', ')', '[', ']', '{', '}']
+    
+    for op in operators:
+        # Escape special regex characters
+        escaped_op = re.escape(op)
+        result = re.sub('(' + escaped_op + ')', COLOR_OPERATOR + r'\1' + COLOR_RESET, result)  # Yellow for operators
+    
+    return result
 
 # Enhanced Web Helper Functions
 def http_get(url, headers=None, params=None):
@@ -1204,7 +1273,7 @@ TOKENS = [
     ('SEMI', r';'), ('DOT', r'\.'), ('NEWLINE', r'\n'),
 ]
 
-# AST Nodes
+# AST Nodes 
 Program = namedtuple('Program', ['statements'])
 ImportStmt = namedtuple('ImportStmt', ['module'])
 FromImportStmt = namedtuple('FromImportStmt', ['module', 'names'])
@@ -2568,6 +2637,7 @@ def repl():
     while True:
         try:
             code = input(f"{Colors.OKGREEN}shiboscript>>> {Colors.ENDC}")
+            
             if code.strip() == "exit":
                 break
             if code.strip() in ('cls', 'clear'):
@@ -2578,10 +2648,19 @@ def repl():
                 for key in sorted(interpreter.env.keys()):
                     if not key.startswith('_'):
                         print(f" - {key}")
+                print("Special commands:")
+                print(" - syntax <code> - Show syntax highlighting for code")
                 continue
+            if code.strip().startswith("syntax "):
+                # Show syntax highlighting for the provided code
+                code_to_highlight = code.strip()[7:]  # Remove "syntax " prefix
+                highlighted = highlight_syntax(code_to_highlight)
+                print(highlighted)
+                continue
+            original_code = code
             while True:
                 try:
-                    lexer = Lexer(code)
+                    lexer = Lexer(original_code)
                     tokens = lexer.tokenize()
                     parser = Parser(tokens)
                     ast = parser.parse()
@@ -2591,7 +2670,7 @@ def repl():
                     next_line = input(f"{Colors.WARNING}... {Colors.ENDC}")
                     if next_line.strip() == "":
                         raise
-                    code += "\n" + next_line
+                    original_code += "\n" + next_line
             result = interpreter.eval(ast)
             if result is not None:
                 print(f"{Colors.OKBLUE}{result}{Colors.ENDC}")
@@ -2612,13 +2691,472 @@ def run_file(filename):
         lexer = Lexer(code)
         tokens = lexer.tokenize()
         parser = Parser(tokens)
-        ast = parser.parse()
+        ast_tree = parser.parse()
         interpreter = Interpreter()
-        interpreter.eval(ast)
+        interpreter.eval(ast_tree)
     except FileNotFoundError:
         print(f"{Colors.FAIL}File not found: {filename}{Colors.ENDC}")
     except Exception as e:
         print(f"{Colors.FAIL}Error: {e}{Colors.ENDC}")
+
+
+class BytecodeGenerator:
+    """Generate bytecode from ShiboScript AST for efficient execution"""
+    
+    def __init__(self):
+        self.instructions = []
+        self.consts = []
+        self.names = []
+        self.varnames = []
+        
+    def generate_from_ast(self, ast_node):
+        """Generate bytecode from AST node"""
+        if hasattr(ast_node, 'statements'):
+            for stmt in ast_node.statements:
+                self.generate_statement(stmt)
+        else:
+            self.generate_statement(ast_node)
+        
+        return {
+            'instructions': self.instructions,
+            'consts': self.consts,
+            'names': self.names,
+            'varnames': self.varnames
+        }
+    
+    def generate_statement(self, stmt):
+        """Generate bytecode for a statement"""
+        if hasattr(stmt, 'name') and hasattr(stmt, 'value'):
+            # Variable assignment
+            self.generate_expression(stmt.value)
+            if stmt.name not in self.varnames:
+                self.varnames.append(stmt.name)
+            var_idx = self.varnames.index(stmt.name)
+            self.instructions.append(('STORE_FAST', var_idx))
+        elif hasattr(stmt, 'expression'):
+            # Expression statement
+            self.generate_expression(stmt.expression)
+            self.instructions.append(('POP_TOP', None))
+        elif hasattr(stmt, 'condition'):
+            # If statement
+            self.generate_if_statement(stmt)
+        
+    def generate_expression(self, expr):
+        """Generate bytecode for an expression"""
+        if hasattr(expr, 'value'):
+            if isinstance(expr, Number):
+                if expr.value not in self.consts:
+                    self.consts.append(expr.value)
+                const_idx = self.consts.index(expr.value)
+                self.instructions.append(('LOAD_CONST', const_idx))
+            elif isinstance(expr, String):
+                if expr.value not in self.consts:
+                    self.consts.append(expr.value)
+                const_idx = self.consts.index(expr.value)
+                self.instructions.append(('LOAD_CONST', const_idx))
+            elif isinstance(expr, Identifier):
+                if expr.name not in self.names:
+                    self.names.append(expr.name)
+                name_idx = self.names.index(expr.name)
+                self.instructions.append(('LOAD_NAME', name_idx))
+        elif hasattr(expr, 'left') and hasattr(expr, 'right'):
+            # Binary operation
+            self.generate_expression(expr.left)
+            self.generate_expression(expr.right)
+            op_map = {
+                '+': 'BINARY_ADD',
+                '-': 'BINARY_SUBTRACT',
+                '*': 'BINARY_MULTIPLY',
+                '/': 'BINARY_TRUE_DIVIDE',
+                '==': 'COMPARE_OP',
+                '!=': 'COMPARE_OP',
+                '<': 'COMPARE_OP',
+                '>': 'COMPARE_OP',
+                '<=': 'COMPARE_OP',
+                '>=': 'COMPARE_OP',
+                'and': 'BINARY_AND',
+                'or': 'BINARY_OR',
+            }
+            if expr.op in op_map:
+                self.instructions.append((op_map[expr.op], expr.op))
+        
+    def generate_if_statement(self, stmt):
+        """Generate bytecode for if statement"""
+        # This is a simplified version - real implementation would be more complex
+        self.generate_expression(stmt.condition)
+        jump_ins_idx = len(self.instructions)
+        self.instructions.append(('POP_JUMP_IF_FALSE', None))  # Placeholder
+        
+        # Generate then branch
+        for sub_stmt in stmt.then_branch:
+            self.generate_statement(sub_stmt)
+        
+        # Jump over else branch
+        end_jump_idx = len(self.instructions)
+        self.instructions.append(('JUMP_FORWARD', None))  # Placeholder
+        
+        # Update the initial jump target
+        self.instructions[jump_ins_idx] = ('POP_JUMP_IF_FALSE', len(self.instructions))
+        
+        # Generate else branch if exists
+        if stmt.else_branch:
+            for sub_stmt in stmt.else_branch:
+                self.generate_statement(sub_stmt)
+        
+        # Update the end jump target
+        self.instructions[end_jump_idx] = ('JUMP_FORWARD', len(self.instructions))
+
+
+class ShiboVM:
+    """Virtual Machine to execute ShiboScript bytecode"""
+    
+    def __init__(self):
+        self.stack = []
+        self.locals = {}
+        self.constants = []
+        self.names = []
+        self.varnames = []
+        self.pc = 0  # Program counter
+        
+    def execute_bytecode(self, bytecode):
+        """Execute the given bytecode"""
+        instructions = bytecode['instructions']
+        self.constants = bytecode['consts']
+        self.names = bytecode['names']
+        self.varnames = bytecode['varnames']
+        
+        while self.pc < len(instructions):
+            op, arg = instructions[self.pc]
+            self.execute_instruction(op, arg)
+            self.pc += 1
+        
+    def execute_instruction(self, op, arg):
+        """Execute a single bytecode instruction"""
+        if op == 'LOAD_CONST':
+            self.stack.append(self.constants[arg])
+        elif op == 'LOAD_NAME':
+            name = self.names[arg]
+            if name in self.locals:
+                self.stack.append(self.locals[name])
+            else:
+                # Look in global namespace
+                self.stack.append(self.names[arg])  # Simplified
+        elif op == 'STORE_FAST':
+            value = self.stack.pop()
+            var_name = self.varnames[arg]
+            self.locals[var_name] = value
+        elif op == 'BINARY_ADD':
+            b = self.stack.pop()
+            a = self.stack.pop()
+            self.stack.append(a + b)
+        elif op == 'BINARY_SUBTRACT':
+            b = self.stack.pop()
+            a = self.stack.pop()
+            self.stack.append(a - b)
+        elif op == 'BINARY_MULTIPLY':
+            b = self.stack.pop()
+            a = self.stack.pop()
+            self.stack.append(a * b)
+        elif op == 'BINARY_TRUE_DIVIDE':
+            b = self.stack.pop()
+            a = self.stack.pop()
+            self.stack.append(a / b)
+        elif op == 'POP_TOP':
+            self.stack.pop()
+        elif op == 'POP_JUMP_IF_FALSE':
+            value = self.stack.pop()
+            if not value:
+                self.pc = arg - 1  # -1 because pc will be incremented after this call
+        elif op == 'JUMP_FORWARD':
+            self.pc = arg - 1  # -1 because pc will be incremented after this call
+        
+
+class Optimizer:
+    """Optimize ShiboScript AST for better performance"""
+    
+    def __init__(self):
+        pass
+    
+    def optimize_ast(self, ast_node):
+        """Apply optimizations to the AST"""
+        # Constant folding
+        ast_node = self.constant_folding(ast_node)
+        
+        # Dead code elimination
+        ast_node = self.dead_code_elimination(ast_node)
+        
+        return ast_node
+    
+    def constant_folding(self, ast_node):
+        """Fold constant expressions"""
+        # This is a simplified implementation
+        # In a real compiler, this would recursively traverse the AST
+        return ast_node
+    
+    def dead_code_elimination(self, ast_node):
+        """Remove unreachable code"""
+        # This is a simplified implementation
+        return ast_node
+
+
+class ShiboModule:
+    """Represents a ShiboScript module"""
+    
+    def __init__(self, name, filename=None):
+        self.name = name
+        self.filename = filename
+        self.exports = {}
+        self.interpreter = Interpreter()
+        
+    def load_from_file(self, filepath):
+        """Load module from file"""
+        with open(filepath, 'r') as f:
+            code = f.read()
+        lexer = Lexer(code)
+        tokens = lexer.tokenize()
+        parser = Parser(tokens)
+        ast_tree = parser.parse()
+        
+        # Evaluate in the module's context
+        self.interpreter.eval(ast_tree)
+        
+        # Capture exported variables/functions
+        self.exports = self.interpreter.env.copy()
+        
+    def get_export(self, name):
+        """Get an exported value from the module"""
+        return self.exports.get(name)
+
+
+class ShiboPackageManager:
+    """Package manager for ShiboScript modules"""
+    
+    def __init__(self):
+        self.packages = {}
+        self.installed_packages = {}
+        
+    def install_package(self, package_name, version=None):
+        """Install a package"""
+        # This would connect to a package repository in a real implementation
+        self.installed_packages[package_name] = version or 'latest'
+        
+    def uninstall_package(self, package_name):
+        """Uninstall a package"""
+        if package_name in self.installed_packages:
+            del self.installed_packages[package_name]
+        
+    def list_packages(self):
+        """List installed packages"""
+        return list(self.installed_packages.keys())
+
+
+class ShiboCompilerBackend:
+    """Backend compiler that can generate various output formats"""
+    
+    def __init__(self):
+        self.optimizer = Optimizer()
+        self.bytecode_generator = BytecodeGenerator()
+        
+    def compile_to_bytecode(self, code):
+        """Compile code to bytecode"""
+        lexer = Lexer(code)
+        tokens = lexer.tokenize()
+        parser = Parser(tokens)
+        ast_tree = parser.parse()
+        
+        # Optimize AST
+        optimized_ast = self.optimizer.optimize_ast(ast_tree)
+        
+        # Generate bytecode
+        bytecode = self.bytecode_generator.generate_from_ast(optimized_ast)
+        
+        return bytecode
+    
+    def compile_to_python(self, code):
+        """Compile ShiboScript code to equivalent Python code"""
+        # This would be implemented similarly to the compiler module
+        lexer = Lexer(code)
+        tokens = lexer.tokenize()
+        parser = Parser(tokens)
+        ast_tree = parser.parse()
+        
+        # Convert to Python code
+        python_code = self.ast_to_python(ast_tree)
+        return python_code
+    
+    def ast_to_python(self, ast_node):
+        """Convert AST to Python code"""
+        if hasattr(ast_node, 'statements'):
+            # Program node
+            code_lines = []
+            for stmt in ast_node.statements:
+                code_lines.append(self.convert_statement_to_python(stmt))
+            return '\n'.join(code_lines)
+        else:
+            return self.convert_statement_to_python(ast_node)
+    
+    def convert_statement_to_python(self, stmt):
+        """Convert individual statement to Python code"""
+        from collections import namedtuple
+        
+        # Handle different statement types
+        if hasattr(stmt, '_fields') and 'name' in stmt._fields and 'value' in stmt._fields:
+            # Variable declaration
+            value_code = self.convert_expression_to_python(stmt.value)
+            return f"{stmt.name} = {value_code}"
+        elif hasattr(stmt, 'name') and hasattr(stmt, 'params') and hasattr(stmt, 'body'):
+            # Function definition
+            params = ', '.join(stmt.params) if stmt.params else ''
+            body_lines = []
+            for sub_stmt in stmt.body:
+                body_lines.append('    ' + self.convert_statement_to_python(sub_stmt))
+            
+            return f"def {stmt.name}({params}):\n" + '\n'.join(body_lines)
+        elif type(stmt).__name__ == 'PrintStmt':
+            # Actual PrintStmt from the parser - check this early to avoid matching general expression condition
+            expr_code = self.convert_expression_to_python(stmt.expression)
+            return f"print({expr_code})"
+        elif hasattr(stmt, 'expression'):
+            # Expression statement
+            expr_code = self.convert_expression_to_python(stmt.expression)
+            return f"{expr_code}"
+        elif hasattr(stmt, 'condition'):
+            # If statement
+            condition_code = self.convert_expression_to_python(stmt.condition)
+            then_lines = []
+            for sub_stmt in stmt.then_branch:
+                then_lines.append('    ' + self.convert_statement_to_python(sub_stmt))
+            
+            code = f"if {condition_code}:\n" + '\n'.join(then_lines)
+            
+            if stmt.else_branch:
+                else_lines = []
+                for sub_stmt in stmt.else_branch:
+                    else_lines.append('    ' + self.convert_statement_to_python(sub_stmt))
+                code += f"\nelse:\n" + '\n'.join(else_lines)
+            
+            return code
+        elif hasattr(stmt, 'condition') and hasattr(stmt, 'body'):
+            # While statement
+            condition_code = self.convert_expression_to_python(stmt.condition)
+            body_lines = []
+            for sub_stmt in stmt.body:
+                body_lines.append('    ' + self.convert_statement_to_python(sub_stmt))
+            
+            return f"while {condition_code}:\n" + '\n'.join(body_lines)
+        elif hasattr(stmt, 'expression') and hasattr(stmt, 'func_expr'):
+            # This is not a print statement - it's a general function call
+            func_code = self.convert_expression_to_python(stmt.func_expr)
+            args_code = ', '.join([self.convert_expression_to_python(arg) for arg in stmt.args])
+            return f"{func_code}({args_code})"
+        elif hasattr(stmt, 'expression') and hasattr(stmt, 'name') and stmt.name == 'print':
+            # Print statement - but this doesn't match PrintStmt
+            expr_code = self.convert_expression_to_python(stmt.expression)
+            return f"print({expr_code})"
+        elif type(stmt).__name__ == 'PrintStmt':
+            # Actual PrintStmt from the parser
+            expr_code = self.convert_expression_to_python(stmt.expression)
+            return f"print({expr_code})"
+        else:
+            return f"# Unhandled statement type: {type(stmt).__name__}"
+    
+    def convert_expression_to_python(self, expr):
+        """Convert expression to Python code"""
+        if hasattr(expr, 'value'):
+            if hasattr(expr, '_fields') and 'value' in expr._fields:
+                if isinstance(expr.value, (int, float)):
+                    return str(expr.value)
+                elif isinstance(expr.value, str):
+                    return f'"{expr.value}"'
+                elif isinstance(expr.value, bool):
+                    return str(expr.value)
+                elif expr.value is None:
+                    return 'None'
+            elif hasattr(expr, 'name'):
+                return expr.name
+        elif hasattr(expr, 'left') and hasattr(expr, 'right'):
+            # Binary operation
+            left_code = self.convert_expression_to_python(expr.left)
+            right_code = self.convert_expression_to_python(expr.right)
+            if expr.op == '==':
+                return f"({left_code} == {right_code})"
+            elif expr.op == '!=':
+                return f"({left_code} != {right_code})"
+            elif expr.op == '&&':
+                return f"({left_code} and {right_code})"
+            elif expr.op == '||':
+                return f"({left_code} or {right_code})"
+            else:
+                return f"({left_code} {expr.op} {right_code})"
+        elif hasattr(expr, 'operand'):
+            # Unary operation
+            operand_code = self.convert_expression_to_python(expr.operand)
+            return f"{expr.op}{operand_code}"
+        elif hasattr(expr, 'func_expr') and hasattr(expr, 'args'):
+            # Function call
+            func_code = self.convert_expression_to_python(expr.func_expr)
+            args_code = ', '.join([self.convert_expression_to_python(arg) for arg in expr.args])
+            return f"{func_code}({args_code})"
+        elif hasattr(expr, 'elements'):
+            # List literal
+            elements_code = ', '.join([self.convert_expression_to_python(e) for e in expr.elements])
+            return f"[{elements_code}]"
+        elif hasattr(expr, 'pairs'):
+            # Dictionary literal - this is trickier, need to handle key-value pairs
+            pairs_code = []
+            for key, value in expr.pairs:
+                key_code = self.convert_expression_to_python(key)
+                value_code = self.convert_expression_to_python(value)
+                pairs_code.append(f'{key_code}: {value_code}')
+            return f"{{{', '.join(pairs_code)}}}"
+        
+        return "None"
+
+
+def compile_file(filename):
+    """Compile a ShiboScript file to bytecode"""
+    backend = ShiboCompilerBackend()
+    with open(filename, 'r') as f:
+        code = f.read()
+    return backend.compile_to_bytecode(code)
+
+
+def run_compiled_bytecode(bytecode):
+    """Run compiled bytecode"""
+    vm = ShiboVM()
+    vm.execute_bytecode(bytecode)
+
+
+def eval_expression(expr_str, env=None):
+    """Evaluate a ShiboScript expression in the given environment"""
+    lexer = Lexer(expr_str)
+    tokens = lexer.tokenize()
+    parser = Parser(tokens)
+    ast_tree = parser.parse()
+    
+    interpreter = Interpreter()
+    if env:
+        interpreter.env.update(env)
+    
+    return interpreter.eval(ast_tree)
+
+
+def get_ast(code):
+    """Get the AST representation of ShiboScript code"""
+    lexer = Lexer(code)
+    tokens = lexer.tokenize()
+    parser = Parser(tokens)
+    return parser.parse()
+
+
+def disassemble_bytecode(bytecode):
+    """Disassemble bytecode for inspection"""
+    print("Disassembled bytecode:")
+    for i, (op, arg) in enumerate(bytecode['instructions']):
+        print(f"  {i}: {op} {arg}")
+    print(f"Constants: {bytecode['consts']}" )
+    print(f"Names: {bytecode['names']}" )
+    print(f"Variables: {bytecode['varnames']}" )
 
 if __name__ == "__main__":
     if len(sys.argv) > 1:

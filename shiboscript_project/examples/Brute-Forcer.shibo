@@ -1,0 +1,18 @@
+func dir_bruteforce(url, wordlist_path) {
+    var wordlist = file.read(wordlist_path).split("\n");
+    print("Starting directory brute-force on: " + url);
+    
+    for (word in wordlist) {
+        if(word == "" ){ 
+            continue; 
+        }
+        var target_url = url + "/" + word;
+        var response = net.http_get(target_url);
+        
+        if (response.status == 200){
+            print("[+] Found: " + target_url + " (" + str(response.status) + ")");
+        }
+    }
+}
+
+# Usage: dir_bruteforce("http://example.com", "common_dirs.txt")

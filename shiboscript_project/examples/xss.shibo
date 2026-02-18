@@ -1,0 +1,12 @@
+func xss_checker(url) {
+    var payload = "<script>alert('XSS')</script>";
+    var response = net.http_get(url + "?query=" + url_encode(payload));
+    
+    if (response.text.contains(payload)) {
+        print("[!] XSS Vulnerability detected!");
+    } else {
+        print("[+] No XSS vulnerability found");
+    }
+}
+
+xss_checker("http://google.com/search")

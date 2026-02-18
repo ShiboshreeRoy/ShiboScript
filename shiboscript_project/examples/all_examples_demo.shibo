@@ -1,0 +1,187 @@
+# Simple All Examples Runner
+print("========================================")
+print("🚀 SHIBOSCRIPT ALL EXAMPLES DEMO")
+print("========================================")
+print("")
+
+# Test 1: Basic Calculator
+print("1️⃣  BASIC CALCULATOR TEST")
+print("----------------------------------------")
+var a = 15
+var b = 25
+print("a = " + a)
+print("b = " + b)
+print("a + b = " + (a + b))
+print("a * b = " + (a * b))
+print("✅ Calculator working")
+print("")
+
+# Test 2: String Operations
+print("2️⃣  STRING OPERATIONS TEST")
+print("----------------------------------------")
+var greeting = "Hello"
+var name = "ShiboScript"
+var message = greeting + ", " + name + "!"
+print("Message: " + message)
+print("Length: " + len(message))
+print("Uppercase: " + upper(message))
+print("✅ String operations working")
+print("")
+
+# Test 3: List Operations
+print("3️⃣  LIST OPERATIONS TEST")
+print("----------------------------------------")
+var numbers = [1, 2, 3, 4, 5]
+print("Original list: " + json.encode(numbers))
+append(numbers, 6)
+print("After append: " + json.encode(numbers))
+print("List length: " + len(numbers))
+print("First element: " + numbers[0])
+print("Last element: " + numbers[len(numbers) - 1])
+print("✅ List operations working")
+print("")
+
+# Test 4: Dictionary Operations
+print("4️⃣  DICTIONARY OPERATIONS TEST")
+print("----------------------------------------")
+var person = {"name": "Shibo", "type": "Script", "version": "0.3.0"}
+print("Person data: " + json.encode(person))
+print("Name: " + person.name)
+print("Type: " + person.type)
+print("Keys: " + json.encode(keys(person)))
+print("✅ Dictionary operations working")
+print("")
+
+# Test 5: Function Definition
+print("5️⃣  FUNCTION DEFINITION TEST")
+print("----------------------------------------")
+func calculate_area(length, width) {
+    return length * width
+}
+
+func greet_user(username) {
+    return "Welcome, " + username + "!"
+}
+
+var area = calculate_area(10, 5)
+var greeting = greet_user("Developer")
+
+print("Area (10x5): " + area)
+print("Greeting: " + greeting)
+print("✅ Functions working")
+print("")
+
+# Test 6: Control Flow
+print("6️⃣  CONTROL FLOW TEST")
+print("----------------------------------------")
+var score = 85
+print("Score: " + score)
+
+if (score >= 90) {
+    print("Grade: A")
+} else if (score >= 80) {
+    print("Grade: B")
+} else if (score >= 70) {
+    print("Grade: C")
+} else {
+    print("Grade: F")
+}
+
+print("Counting to 5:")
+for (var i = 1; i <= 5; i++) {
+    print("Number: " + i)
+}
+print("✅ Control flow working")
+print("")
+
+# Test 7: Built-in Libraries
+print("7️⃣  BUILT-IN LIBRARIES TEST")
+print("----------------------------------------")
+var random_num = random.int(1, 100)
+print("Random number: " + random_num)
+
+var current_time = time.now()
+print("Current timestamp: " + current_time)
+
+var encoded = base64.encode("Secret Message")
+var decoded = base64.decode(encoded)
+print("Base64 encode/decode working")
+print("✅ Built-in libraries working")
+print("")
+
+# Test 8: Object-Oriented Features
+print("8️⃣  OOP FEATURES TEST")
+print("----------------------------------------")
+class Animal {
+    var name
+    var species
+    
+    func init(name, species) {
+        self.name = name
+        self.species = species
+    }
+    
+    func speak() {
+        return self.name + " makes a sound"
+    }
+}
+
+class Dog(Animal) {
+    func speak() {
+        return self.name + " says woof!"
+    }
+}
+
+var dog = Dog("Buddy", "Canine")
+print("Dog name: " + dog.name)
+print("Dog species: " + dog.species)
+print("Dog says: " + dog.speak())
+print("✅ OOP features working")
+print("")
+
+# Test 9: Error Handling
+print("9️⃣  ERROR HANDLING TEST")
+print("----------------------------------------")
+try {
+    var result = 10 / 2
+    print("Division result: " + result)
+} catch (error) {
+    print("Error caught: " + error)
+}
+
+try {
+    var undefined_var = nonexistent_variable
+} catch (error) {
+    print("Error caught: " + error)
+}
+print("✅ Error handling working")
+print("")
+
+# Test 10: File Operations Simulation
+print("🔟  FILE OPERATIONS TEST")
+print("----------------------------------------")
+var sample_data = {"project": "ShiboScript", "status": "success", "version": "0.3.0"}
+var json_string = json.encode(sample_data)
+print("JSON data: " + json_string)
+
+var parsed_data = json.decode(json_string)
+print("Parsed project: " + parsed_data.project)
+print("✅ File operations simulation working")
+print("")
+
+print("========================================")
+print("🎉 ALL EXAMPLES COMPLETED SUCCESSFULLY!")
+print("========================================")
+print("")
+print("ShiboScript features demonstrated:")
+print("✅ Variables and data types")
+print("✅ String operations")
+print("✅ List and dictionary operations") 
+print("✅ Function definitions")
+print("✅ Control flow (if/else, loops)")
+print("✅ Built-in libraries")
+print("✅ Object-oriented programming")
+print("✅ Error handling")
+print("✅ JSON processing")
+print("")
+print("🐕 ShiboScript is ready for real-world use!")

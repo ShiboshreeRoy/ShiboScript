@@ -1,0 +1,193 @@
+# System Monitor - Real World Project
+# Monitors system resources and performance metrics
+
+class SystemMonitor {
+    var metrics_history
+    var alerts
+    
+    func init() {
+        self.metrics_history = []
+        self.alerts = []
+    }
+    
+    func get_cpu_usage() {
+        # Simulated CPU usage (in real implementation, you'd read from /proc or use psutil)
+        return random.int(10, 90)
+    }
+    
+    func get_memory_usage() {
+        # Simulated memory usage
+        var total_memory = 8192  # MB
+        var used_memory = random.int(2000, 6000)
+        return {
+            "total": total_memory,
+            "used": used_memory,
+            "percentage": (used_memory * 100) / total_memory
+        }
+    }
+    
+    func get_disk_usage() {
+        # Simulated disk usage
+        var total_disk = 512000  # MB
+        var used_disk = random.int(100000, 400000)
+        return {
+            "total": total_disk,
+            "used": used_disk,
+            "percentage": (used_disk * 100) / total_disk
+        }
+    }
+    
+    func get_network_stats() {
+        # Simulated network statistics
+        return {
+            "bytes_sent": random.int(1000000, 5000000),
+            "bytes_received": random.int(2000000, 8000000),
+            "packets_sent": random.int(10000, 50000),
+            "packets_received": random.int(15000, 60000)
+        }
+    }
+    
+    func get_system_info() {
+        return {
+            "timestamp": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+            "cpu_usage": self.get_cpu_usage(),
+            "memory": self.get_memory_usage(),
+            "disk": self.get_disk_usage(),
+            "network": self.get_network_stats(),
+            "uptime": random.int(3600, 86400)  # seconds
+        }
+    }
+    
+    func check_alerts(metrics) {
+        var alerts_found = []
+        
+        # CPU alert
+        if (metrics.cpu_usage > 80) {
+            alerts_found.append("HIGH_CPU: " + metrics.cpu_usage + "%")
+        }
+        
+        # Memory alert
+        if (metrics.memory.percentage > 85) {
+            alerts_found.append("HIGH_MEMORY: " + metrics.memory.percentage + "%")
+        }
+        
+        # Disk alert
+        if (metrics.disk.percentage > 90) {
+            alerts_found.append("LOW_DISK_SPACE: " + metrics.disk.percentage + "%")
+        }
+        
+        if (len(alerts_found) > 0) {
+            self.alerts.append({
+                "timestamp": metrics.timestamp,
+                "alerts": alerts_found
+            })
+            print("ALERTS: " + json.encode(alerts_found))
+        }
+        
+        return alerts_found
+    }
+    
+    func collect_metrics(duration_seconds, interval_seconds) {
+        print("=== Starting System Monitoring ===")
+        print("Duration: " + duration_seconds + " seconds")
+        print("Interval: " + interval_seconds + " seconds")
+        
+        var start_time = time.now()
+        var current_time = start_time
+        
+        while ((current_time - start_time) < duration_seconds) {
+            var metrics = self.get_system_info()
+            self.metrics_history.append(metrics)
+            
+            print("\n--- System Status ---")
+            print("Time: " + metrics.timestamp)
+            print("CPU Usage: " + metrics.cpu_usage + "%")
+            print("Memory: " + metrics.memory.used + "MB / " + metrics.memory.total + "MB (" + round(metrics.memory.percentage, 1) + "%)")
+            print("Disk: " + metrics.disk.used + "MB / " + metrics.disk.total + "MB (" + round(metrics.disk.percentage, 1) + "%)")
+            print("Uptime: " + (metrics.uptime / 3600) + " hours")
+            
+            # Check for alerts
+            self.check_alerts(metrics)
+            
+            # Wait for next interval
+            time.sleep(interval_seconds)
+            current_time = time.now()
+        }
+        
+        print("\n=== Monitoring Complete ===")
+        print("Collected " + len(self.metrics_history) + " metric samples")
+        print("Generated " + len(self.alerts) + " alerts")
+        
+        return {
+            "metrics": self.metrics_history,
+            "alerts": self.alerts
+        }
+    }
+    
+    func generate_report() {
+        if (len(self.metrics_history) == 0) {
+            print("No metrics to report")
+            return null
+        }
+        
+        # Calculate averages
+        var total_cpu = 0
+        var total_memory_pct = 0
+        var total_disk_pct = 0
+        
+        for (metrics in self.metrics_history) {
+            total_cpu = total_cpu + metrics.cpu_usage
+            total_memory_pct = total_memory_pct + metrics.memory.percentage
+            total_disk_pct = total_disk_pct + metrics.disk.percentage
+        }
+        
+        var count = len(self.metrics_history)
+        var averages = {
+            "cpu_average": total_cpu / count,
+            "memory_average": total_memory_pct / count,
+            "disk_average": total_disk_pct / count
+        }
+        
+        var report = {
+            "period_start": self.metrics_history[0].timestamp,
+            "period_end": self.metrics_history[count - 1].timestamp,
+            "total_samples": count,
+            "averages": averages,
+            "alerts_count": len(self.alerts),
+            "alerts": self.alerts
+        }
+        
+        var report_json = json.encode(report)
+        file.write("system_monitor_report.json", report_json)
+        print("Report saved to system_monitor_report.json")
+        
+        return report
+    }
+}
+
+# Run system monitor demo
+func system_monitor_demo() {
+    print("=== System Monitor Demo ===")
+    
+    var monitor = SystemMonitor()
+    
+    # Monitor for 30 seconds with 5-second intervals
+    var results = monitor.collect_metrics(30, 5)
+    
+    # Generate final report
+    var report = monitor.generate_report()
+    
+    if (report != null) {
+        print("\n=== Summary Report ===")
+        print("Monitoring Period: " + report.period_start + " to " + report.period_end)
+        print("Average CPU Usage: " + round(report.averages.cpu_average, 1) + "%")
+        print("Average Memory Usage: " + round(report.averages.memory_average, 1) + "%")
+        print("Average Disk Usage: " + round(report.averages.disk_average, 1) + "%")
+        print("Total Alerts: " + report.alerts_count)
+    }
+    
+    return results
+}
+
+# Execute the system monitor
+var monitor_results = system_monitor_demo()

@@ -1,4 +1,3 @@
-"""Setup script for ShiboScript"""
 from setuptools import setup, find_packages
 
 with open("README.md", "r", encoding="utf-8") as fh:
@@ -6,40 +5,43 @@ with open("README.md", "r", encoding="utf-8") as fh:
 
 setup(
     name="shiboscript",
-    version="0.3.0",
-    author="ShiboShreeRoy",
-    author_email="shiboshree.roy@example.com",
-    description="A lightweight scripting language for education and automation",
+    version="1.0.0",
+    author="Shiboscript Team",
+    author_email="shiboshreeroycse@gmail.com",
+    description="A Python-like scripting language with advanced features",
     long_description=long_description,
     long_description_content_type="text/markdown",
-    url="https://github.com/ShiboShreeRoy/ShiboScript",
+    url="https://github.com/shiboscript/shiboscript",
     packages=find_packages(where="src"),
     package_dir={"": "src"},
     classifiers=[
-        "Development Status :: 3 - Alpha",
+        "Development Status :: 4 - Beta",
         "Intended Audience :: Developers",
-        "Intended Audience :: Education",
         "License :: OSI Approved :: MIT License",
         "Operating System :: OS Independent",
         "Programming Language :: Python :: 3",
+        "Programming Language :: Python :: 3.7",
         "Programming Language :: Python :: 3.8",
         "Programming Language :: Python :: 3.9",
         "Programming Language :: Python :: 3.10",
         "Programming Language :: Python :: 3.11",
-        "Topic :: Software Development :: Interpreters",
-        "Topic :: Education",
     ],
-    python_requires=">=3.8",
+    python_requires=">=3.7",
+    entry_points={
+        "console_scripts": [
+            "shiboc=shiboscript.compiler:main",
+            "shiboscript=shiboscript.core:repl",
+        ],
+    },
     install_requires=[
         "Pillow>=8.0.0",
     ],
-    entry_points={
-        "console_scripts": [
-            "shiboscript=cli:main",
+    extras_require={
+        "dev": [
+            "pytest>=6.0",
+            "black>=21.0",
+            "flake8>=3.8",
         ],
     },
-    include_package_data=True,
-    package_data={
-        "": ["*.md", "*.txt", "*.ico"],
-    },
+    scripts=['shiboc'],  # Add the shiboc script
 )

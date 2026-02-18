@@ -1,0 +1,45 @@
+"""Setup script for ShiboScript"""
+from setuptools import setup, find_packages
+
+with open("README.md", "r", encoding="utf-8") as fh:
+    long_description = fh.read()
+
+setup(
+    name="shiboscript",
+    version="0.3.0",
+    author="ShiboShreeRoy",
+    author_email="shiboshreeroycse@gmail.com",
+    description="A lightweight scripting language for education and automation",
+    long_description=long_description,
+    long_description_content_type="text/markdown",
+    url="https://github.com/ShiboShreeRoy/ShiboScript",
+    packages=find_packages(where="src"),
+    package_dir={"": "src"},
+    classifiers=[
+        "Development Status :: 3 - Alpha",
+        "Intended Audience :: Developers",
+        "Intended Audience :: Education",
+        "License :: OSI Approved :: MIT License",
+        "Operating System :: OS Independent",
+        "Programming Language :: Python :: 3",
+        "Programming Language :: Python :: 3.8",
+        "Programming Language :: Python :: 3.9",
+        "Programming Language :: Python :: 3.10",
+        "Programming Language :: Python :: 3.11",
+        "Topic :: Software Development :: Interpreters",
+        "Topic :: Education",
+    ],
+    python_requires=">=3.8",
+    install_requires=[
+        "Pillow>=8.0.0",
+    ],
+    entry_points={
+        "console_scripts": [
+            "shiboscript=cli:main",
+        ],
+    },
+    include_package_data=True,
+    package_data={
+        "": ["*.md", "*.txt", "*.ico"],
+    },
+)

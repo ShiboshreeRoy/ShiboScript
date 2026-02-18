@@ -1,0 +1,54 @@
+# Web API Development Example
+print("=== Web API Development ===")
+
+# Create API response
+var user_data = {
+    "id": 1,
+    "name": "John Doe",
+    "email": "john@example.com",
+    "active": true
+}
+
+var api_response = web.create_api_response("success", user_data, "User retrieved successfully")
+print("API Response: " + json.encode(api_response))
+
+# JSON Schema Validation
+var user_schema = {
+    "id": "number",
+    "name": "string", 
+    "email": "string",
+    "active": "boolean"
+}
+
+var validation_result = web.validate_json_schema(user_data, user_schema)
+print("Validation Result: " + json.encode(validation_result))
+
+# Test invalid data
+var invalid_user = {
+    "id": "not_a_number",
+    "name": "Jane Doe",
+    "email": "jane@example.com"
+}
+
+var invalid_validation = web.validate_json_schema(invalid_user, user_schema)
+print("Invalid Validation: " + json.encode(invalid_validation))
+
+# JWT Authentication
+var payload = {
+    "user_id": 123,
+    "username": "johndoe",
+    "exp": time.now() + 3600
+}
+
+var secret_key = "my_secret_key"
+var jwt_token = web.jwt_encode(payload, secret_key)
+print("JWT Token: " + jwt_token)
+
+var decoded_payload = web.jwt_decode(jwt_token, secret_key)
+print("Decoded Payload: " + json.encode(decoded_payload))
+
+# Test invalid JWT
+var invalid_decoded = web.jwt_decode("invalid.token.here", secret_key)
+print("Invalid JWT Decoded: " + json.encode(invalid_decoded))
+
+print("✅ Web API features working!")

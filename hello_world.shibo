@@ -1,0 +1,27 @@
+# Simple Hello World example
+print("Hello, World!");
+print("Welcome to ShiboScript!");
+
+# Variables
+var name = "ShiboScript";
+var version = 0.3;
+var isAwesome = true;
+
+print("Running " + name + " v" + str(version));
+print("Is awesome? " + str(isAwesome));
+
+# Simple function
+func greet(person) {
+    return "Hello, " + person + "!";
+}
+
+print(greet("User"));
+
+# Simple loop with a list
+var numbers = [5, 4, 3, 2, 1];
+print("Counting from 5 to 1:");
+for (num in numbers) {
+    print(num);
+}
+
+print("Done!");

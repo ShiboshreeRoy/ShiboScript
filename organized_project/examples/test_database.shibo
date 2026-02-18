@@ -1,0 +1,113 @@
+# Test Database ORM Features
+print("=== Testing Database ORM Features ===")
+
+# Create database
+var db = create_database("test.db")
+print("Database created successfully")
+
+# Create users table model
+var user_schema = {
+    "id": "INTEGER PRIMARY KEY",
+    "name": "TEXT NOT NULL",
+    "email": "TEXT UNIQUE",
+    "age": "INTEGER",
+    "created_at": "TEXT"
+}
+
+var User = create_model(db, "users", user_schema)
+print("User model created")
+
+# Insert test data
+var user1 = User.create({
+    "name": "Alice Smith",
+    "email": "alice@example.com",
+    "age": 25,
+    "created_at": datetime_now()
+})
+
+var user2 = User.create({
+    "name": "Bob Johnson",
+    "email": "bob@example.com",
+    "age": 30,
+    "created_at": datetime_now()
+})
+
+var user3 = User.create({
+    "name": "Charlie Brown",
+    "email": "charlie@example.com",
+    "age": 35,
+    "created_at": datetime_now()
+})
+
+print("Users created: " + User.all().length)
+
+# Find users
+var all_users = User.all()
+print("All users:")
+for (user in all_users) {
+    print("- " + user.name + " (" + user.email + ") - Age: " + user.age)
+}
+
+# Find specific user
+var alice = User.find_one({"email": "alice@example.com"})
+print("Found Alice: " + alice.name)
+
+# Update user
+User.update({"age": 26}, {"email": "alice@example.com"})
+var updated_alice = User.find_one({"email": "alice@example.com"})
+print("Alice's new age: " + updated_alice.age)
+
+# Query builder example
+var query = query_builder(db)
+    .from_table("users")
+    .select(["name", "age"])
+    .where("age", ">", 25)
+    .order_by("age", "DESC")
+    .limit(2)
+    .execute()
+
+print("Users over 25 (limited to 2):")
+for (row in query) {
+    print("- " + row[0] + " (Age: " + row[1] + ")")
+}
+
+# Test relationships
+var post_schema = {
+    "id": "INTEGER PRIMARY KEY",
+    "user_id": "INTEGER",
+    "title": "TEXT",
+    "content": "TEXT",
+    "created_at": "TEXT"
+}
+
+var Post = create_model(db, "posts", post_schema)
+
+# Create posts
+Post.create({
+    "user_id": alice.id,
+    "title": "My First Post",
+    "content": "Hello world!",
+    "created_at": datetime_now()
+})
+
+Post.create({
+    "user_id": alice.id,
+    "title": "My Second Post",
+    "content": "ShiboScript is awesome!",
+    "created_at": datetime_now()
+})
+
+# Join query
+var join_query = query_builder(db)
+    .from_table("posts")
+    .select(["users.name", "posts.title"])
+    .join("users", "posts.user_id = users.id")
+    .where("users.name", "=", "Alice Smith")
+    .execute()
+
+print("Alice's posts:")
+for (row in join_query) {
+    print("- " + row[0] + ": " + row[1])
+}
+
+print("✅ Database ORM features working!")

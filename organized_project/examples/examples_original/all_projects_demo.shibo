@@ -1,0 +1,149 @@
+# ShiboScript Real-World Projects Master Demo
+# Runs all 6 practical applications to showcase language capabilities
+
+func run_all_projects() {
+    print("========================================")
+    print("🚀 SHIBOSCRIPT REAL-WORLD PROJECTS DEMO")
+    print("========================================")
+    print("")
+    
+    var project_results = {}
+    
+    # Project 1: Web Scraper
+    print("1️⃣  WEB SCRAPER PROJECT")
+    print("   Extracts data from websites and saves structured information")
+    print("   ----------------------------------------")
+    try {
+        import web_scraper
+        var scraper_result = web_scraper.web_scraper_demo()
+        project_results.scraper = "SUCCESS"
+        print("   ✅ Web Scraper completed successfully")
+    } catch (error) {
+        print("   ❌ Web Scraper failed: " + error)
+        project_results.scraper = "FAILED"
+    }
+    print("")
+    
+    # Project 2: File Organizer
+    print("2️⃣  FILE ORGANIZER PROJECT")
+    print("   Automatically organizes files by type and date")
+    print("   ----------------------------------------")
+    try {
+        import file_organizer
+        var organizer_result = file_organizer.file_organizer_demo()
+        project_results.organizer = "SUCCESS"
+        print("   ✅ File Organizer completed successfully")
+    } catch (error) {
+        print("   ❌ File Organizer failed: " + error)
+        project_results.organizer = "FAILED"
+    }
+    print("")
+    
+    # Project 3: System Monitor
+    print("3️⃣  SYSTEM MONITOR PROJECT")
+    print("   Monitors system resources and performance metrics")
+    print("   ----------------------------------------")
+    try {
+        import system_monitor
+        var monitor_result = system_monitor.system_monitor_demo()
+        project_results.monitor = "SUCCESS"
+        print("   ✅ System Monitor completed successfully")
+    } catch (error) {
+        print("   ❌ System Monitor failed: " + error)
+        project_results.monitor = "FAILED"
+    }
+    print("")
+    
+    # Project 4: Password Manager
+    print("4️⃣  PASSWORD MANAGER PROJECT")
+    print("   Secure password storage and management system")
+    print("   ----------------------------------------")
+    try {
+        import password_manager
+        var password_result = password_manager.password_manager_demo()
+        project_results.password_manager = "SUCCESS"
+        print("   ✅ Password Manager completed successfully")
+    } catch (error) {
+        print("   ❌ Password Manager failed: " + error)
+        project_results.password_manager = "FAILED"
+    }
+    print("")
+    
+    # Project 5: Task Manager
+    print("5️⃣  TASK MANAGER PROJECT")
+    print("   Project management and task tracking system")
+    print("   ----------------------------------------")
+    try {
+        import task_manager
+        var task_result = task_manager.task_manager_demo()
+        project_results.task_manager = "SUCCESS"
+        print("   ✅ Task Manager completed successfully")
+    } catch (error) {
+        print("   ❌ Task Manager failed: " + error)
+        project_results.task_manager = "FAILED"
+    }
+    print("")
+    
+    # Project 6: Data Analyzer
+    print("6️⃣  DATA ANALYZER PROJECT")
+    print("   Process and analyze data files with statistical insights")
+    print("   ----------------------------------------")
+    try {
+        import data_analyzer
+        var analyzer_result = data_analyzer.data_analyzer_demo()
+        project_results.data_analyzer = "SUCCESS"
+        print("   ✅ Data Analyzer completed successfully")
+    } catch (error) {
+        print("   ❌ Data Analyzer failed: " + error)
+        project_results.data_analyzer = "FAILED"
+    }
+    print("")
+    
+    # Final Summary
+    print("========================================")
+    print("📊 PROJECT EXECUTION SUMMARY")
+    print("========================================")
+    
+    var success_count = 0
+    var total_projects = 6
+    
+    var project_keys = keys(project_results)
+    for (project in project_keys) {
+        var result = project_results[project]
+        if (result == "SUCCESS") {
+            success_count = success_count + 1
+        }
+        print(project + ": " + result)
+    }
+    
+    print("")
+    print("✅ Successful projects: " + success_count + "/" + total_projects)
+    print("📈 Success rate: " + ((success_count * 100) / total_projects) + "%")
+    
+    if (success_count == total_projects) {
+        print("🎉 All projects executed successfully!")
+        print("ShiboScript is ready for real-world applications!")
+    } else {
+        print("⚠ Some projects encountered issues. Check error messages above.")
+    }
+    
+    print("")
+    print("📁 Generated files:")
+    print("   - scraped_data.json (Web Scraper)")
+    print("   - organization_report.json (File Organizer)")
+    print("   - system_monitor_report.json (System Monitor)")
+    print("   - passwords.db (Password Manager)")
+    print("   - tasks.json (Task Manager)")
+    print("   - data_analysis_report.json (Data Analyzer)")
+    print("   - sample_employees.csv (Data Analyzer)")
+    
+    return project_results
+}
+
+# Run all projects
+var results = run_all_projects()
+
+print("")
+print("========================================")
+print("🐕 Thank you for using ShiboScript!")
+print("========================================")

@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ShiboScript Documentation</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: white;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        
+        header {
+            background-color: #2c3e50;
+            color: white;
+            padding: 20px;
+            text-align: center;
+            border-radius: 5px;
+            margin-bottom: 20px;
+        }
+        
+        h1 {
+            margin: 0;
+            font-size: 2.5em;
+        }
+        
+        .logo {
+            font-size: 3em;
+            margin-right: 10px;
+        }
+        
+        .section {
+            margin-bottom: 30px;
+            padding: 20px;
+            border-left: 4px solid #3498db;
+            background-color: #ecf0f1;
+            border-radius: 5px;
+        }
+        
+        h2 {
+            color: #2c3e50;
+            margin-top: 0;
+        }
+        
+        ul {
+            padding-left: 20px;
+        }
+        
+        li {
+            margin: 5px 0;
+        }
+        
+        a {
+            color: #3498db;
+            text-decoration: none;
+        }
+        
+        a:hover {
+            text-decoration: underline;
+        }
+        
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+        
+        .feature-card {
+            background-color: white;
+            padding: 15px;
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            border: 1px solid #ddd;
+        }
+        
+        .feature-card h3 {
+            margin-top: 0;
+            color: #2c3e50;
+        }
+        
+        footer {
+            text-align: center;
+            padding: 20px;
+            background-color: #2c3e50;
+            color: white;
+            border-radius: 5px;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1><span class="logo">🐕</span> ShiboScript Documentation</h1>
+            <p>A lightweight scripting language for education and automation</p>
+        </header>
+        
+        <div class="section">
+            <h2>Welcome to ShiboScript</h2>
+            <p>ShiboScript is a lightweight, educational scripting language designed for learning programming concepts and automation tasks. It features simple syntax, object-oriented programming support, and rich built-in libraries.</p>
+        </div>
+        
+        <div class="section">
+            <h2>Quick Start</h2>
+            <pre><code># hello.shibo
+func greet(name) {
+    print("Hello, " + name + "!")
+}
+
+greet("ShiboScript")</code></pre>
+            
+            <p>Run with:</p>
+            <pre><code>shiboscript hello.shibo</code></pre>
+        </div>
+        
+        <div class="section">
+            <h2>Documentation Sections</h2>
+            <div class="feature-grid">
+                <div class="feature-card">
+                    <h3>📘 Tutorials</h3>
+                    <ul>
+                        <li><a href="tutorials/beginner_guide.md">Beginner Guide</a> - Step-by-step introduction</li>
+                    </ul>
+                </div>
+                
+                <div class="feature-card">
+                    <h3>📚 API Documentation</h3>
+                    <ul>
+                        <li><a href="api_docs/BUILTIN_FUNCTIONS.md">Built-in Functions</a> - Complete API reference</li>
+                    </ul>
+                </div>
+                
+                <div class="feature-card">
+                    <h3>📝 Examples</h3>
+                    <ul>
+                        <li><a href="examples/">Browse Examples</a> - All example files</li>
+                        <li><a href="examples/hello.shibo">Hello World</a></li>
+                        <li><a href="examples/calculator.shibo">Calculator</a></li>
+                        <li><a href="examples/classes.shibo">OOP Examples</a></li>
+                        <li><a href="examples/web_api.shibo">Web API</a></li>
+                        <li><a href="examples/data_analyzer.shibo">Data Analysis</a></li>
+                    </ul>
+                </div>
+                
+                <div class="feature-card">
+                    <h3>📋 Reference Guides</h3>
+                    <ul>
+                        <li><a href="reference_guides/LANGUAGE_SYNTAX.md">Language Syntax</a> - Complete syntax reference</li>
+                        <li><a href="reference_guides/BEST_PRACTICES.md">Best Practices</a> - Coding guidelines</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        
+        <div class="section">
+            <h2>Language Features</h2>
+            <div class="feature-grid">
+                <div class="feature-card">
+                    <h3>Core Features</h3>
+                    <ul>
+                        <li>Simple, readable syntax</li>
+                        <li>Dynamic typing</li>
+                        <li>Automatic memory management</li>
+                        <li>Rich standard library</li>
+                    </ul>
+                </div>
+                
+                <div class="feature-card">
+                    <h3>Programming Paradigms</h3>
+                    <ul>
+                        <li>Procedural programming</li>
+                        <li>Object-oriented programming</li>
+                        <li>Functional programming</li>
+                        <li>Event-driven programming</li>
+                    </ul>
+                </div>
+                
+                <div class="feature-card">
+                    <h3>Advanced Features</h3>
+                    <ul>
+                        <li>Web development capabilities</li>
+                        <li>Database ORM</li>
+                        <li>Advanced data structures</li>
+                        <li>Cryptography functions</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        
+        <div class="section">
+            <h2>Installation</h2>
+            <pre><code>pip install shiboscript-pro</code></pre>
+            
+            <h3>Command Line Usage</h3>
+            <ul>
+                <li><code>shiboscript</code> - Start interactive REPL</li>
+                <li><code>shiboscript file.shibo</code> - Run a script file</li>
+                <li><code>shiboscript --version</code> - Show version</li>
+                <li><code>shiboscript --help</code> - Show help</li>
+            </ul>
+        </div>
+        
+        <footer>
+            <p>ShiboScript Documentation | Made with 🐕 for education and fun!</p>
+            <p>© 2026 ShiboShreeRoy. All rights reserved.</p>
+        </footer>
+    </div>
+</body>
+</html>

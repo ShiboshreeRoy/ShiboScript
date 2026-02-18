@@ -1,0 +1,363 @@
+# ShiboScript Final Comprehensive Demo
+print("========================================")
+print("🚀 SHIBOSCRIPT FINAL DEMO - ALL FEATURES")
+print("========================================")
+print("")
+
+# Test 1: Basic Operations
+print("1️⃣  BASIC OPERATIONS & VARIABLES")
+print("----------------------------------------")
+var a = 25
+var b = 15
+print("a = " + a)
+print("b = " + b)
+print("a + b = " + (a + b))
+print("a - b = " + (a - b))
+print("a * b = " + (a * b))
+print("a / b = " + (a / b))
+print("a > b = " + (a > b))
+print("a == b = " + (a == b))
+print("✅ Basic operations working")
+print("")
+
+# Test 2: String Operations
+print("2️⃣  STRING MANIPULATION")
+print("----------------------------------------")
+var greeting = "Hello"
+var target = "ShiboScript"
+var message = greeting + " " + target + "!"
+print("Message: " + message)
+print("Length: " + len(message))
+print("Uppercase: " + upper(message))
+print("Lowercase: " + lower(message))
+print("Split by space: " + json.encode(split(message, " ")))
+print("✅ String operations working")
+print("")
+
+# Test 3: List Operations
+print("3️⃣  LIST MANIPULATION")
+print("----------------------------------------")
+var fruits = ["apple", "banana", "orange", "grape"]
+print("Original list: " + json.encode(fruits))
+append(fruits, "mango")
+print("After append: " + json.encode(fruits))
+print("List length: " + len(fruits))
+print("First fruit: " + fruits[0])
+print("Last fruit: " + fruits[len(fruits) - 1])
+print("Sorted fruits: " + json.encode(sort(fruits)))
+remove(fruits, "banana")
+print("After removing banana: " + json.encode(fruits))
+print("✅ List operations working")
+print("")
+
+# Test 4: Dictionary Operations
+print("4️⃣  DICTIONARY MANIPULATION")
+print("----------------------------------------")
+var student = {}
+student["name"] = "Alice"
+student["age"] = 25
+student["grade"] = "A"
+student["courses"] = ["Math", "Science", "English"]
+
+print("Student name: " + student.name)
+print("Student age: " + student.age)
+print("Student grade: " + student.grade)
+print("Student courses: " + json.encode(student.courses))
+print("All keys: " + json.encode(keys(student)))
+print("✅ Dictionary operations working")
+print("")
+
+# Test 5: Function Definitions
+print("5️⃣  FUNCTION DEFINITIONS")
+print("----------------------------------------")
+func calculate_bmi(weight, height) {
+    return weight / (height * height)
+}
+
+func get_grade(score) {
+    if (score >= 90) {
+        return "A"
+    } else if (score >= 80) {
+        return "B"
+    } else if (score >= 70) {
+        return "C"
+    } else {
+        return "F"
+    }
+}
+
+func create_greeting(name, time_of_day) {
+    return "Good " + time_of_day + ", " + name + "!"
+}
+
+var bmi = calculate_bmi(70, 1.75)
+var grade = get_grade(87)
+var greeting = create_greeting("Developer", "morning")
+
+print("BMI (70kg, 1.75m): " + round(bmi, 2))
+print("Grade for score 87: " + grade)
+print("Greeting: " + greeting)
+print("✅ Functions working")
+print("")
+
+# Test 6: Control Flow - If Statements
+print("6️⃣  CONTROL FLOW - CONDITIONALS")
+print("----------------------------------------")
+var temperature = 25
+print("Temperature: " + temperature + "°C")
+
+if (temperature > 30) {
+    print("🔥 It's hot!")
+} else if (temperature > 20) {
+    print("🌤️ It's pleasant")
+} else if (temperature > 10) {
+    print("❄️ It's cool")
+} else {
+    print("🧊 It's cold!")
+}
+
+var age = 18
+if (age >= 18) {
+    print("✅ You are eligible to vote")
+} else {
+    print("❌ You are not eligible to vote")
+}
+
+print("✅ Conditional statements working")
+print("")
+
+# Test 7: Control Flow - While Loops
+print("7️⃣  CONTROL FLOW - LOOPS")
+print("----------------------------------------")
+print("Counting with while loop:")
+var counter = 1
+while (counter <= 5) {
+    print("Count: " + counter)
+    counter = counter + 1
+}
+
+print("Even numbers 2-10:")
+var num = 2
+while (num <= 10) {
+    print("Even number: " + num)
+    num = num + 2
+}
+
+print("Factorial calculation:")
+var n = 5
+var factorial = 1
+var temp = n
+while (temp > 0) {
+    factorial = factorial * temp
+    temp = temp - 1
+}
+print(n + "! = " + factorial)
+
+print("✅ Loops working")
+print("")
+
+# Test 8: Built-in Libraries
+print("8️⃣  BUILT-IN LIBRARIES")
+print("----------------------------------------")
+print("Mathematical functions:")
+print("Square root of 16: " + math.sqrt(16))
+print("2^8 = " + math.pow(2, 8))
+print("Pi: " + math.pi)
+
+print("Random functions:")
+var random_int = random.int(1, 100)
+print("Random integer (1-100): " + random_int)
+var random_string = random.string(8)
+print("Random string (8 chars): " + random_string)
+
+print("Time functions:")
+var current_time = time.now()
+print("Current timestamp: " + current_time)
+print("Sleep demonstration...")
+time.sleep(0.1)  # Short sleep
+print("Sleep completed!")
+
+print("Encoding functions:")
+var original = "Secret Data"
+var encoded = base64.encode(original)
+var decoded = base64.decode(encoded)
+print("Original: " + original)
+print("Encoded: " + encoded)
+print("Decoded: " + decoded)
+
+print("Hashing functions:")
+var password = "my_password_123"
+var md5_hash = crypto.md5(password)
+var sha256_hash = crypto.sha256(password)
+print("Password: " + password)
+print("MD5: " + md5_hash)
+print("SHA256: " + sha256_hash)
+
+print("✅ Built-in libraries working")
+print("")
+
+# Test 9: Object-Oriented Programming
+print("9️⃣  OBJECT-ORIENTED PROGRAMMING")
+print("----------------------------------------")
+class Person {
+    var name
+    var age
+    var occupation
+    
+    func init(name, age, occupation) {
+        self.name = name
+        self.age = age
+        self.occupation = occupation
+    }
+    
+    func introduce() {
+        return "Hi, I'm " + self.name + ", " + self.age + " years old, working as a " + self.occupation
+    }
+    
+    func have_birthday() {
+        self.age = self.age + 1
+        return self.name + " is now " + self.age + " years old!"
+    }
+}
+
+class Student(Person) {
+    var student_id
+    var courses
+    
+    func init(name, age, student_id) {
+        super.init(name, age, "Student")
+        self.student_id = student_id
+        self.courses = []
+    }
+    
+    func add_course(course) {
+        append(self.courses, course)
+        return self.name + " enrolled in " + course
+    }
+    
+    func introduce() {
+        var base_intro = super.introduce()
+        return base_intro + " with ID: " + self.student_id
+    }
+}
+
+var person = Person("John Doe", 30, "Engineer")
+print("Person introduction: " + person.introduce())
+print("Birthday: " + person.have_birthday())
+
+var student = Student("Alice Smith", 20, "STU001")
+print("Student introduction: " + student.introduce())
+print("Enrollment: " + student.add_course("Computer Science"))
+print("Another enrollment: " + student.add_course("Mathematics"))
+print("Student courses: " + json.encode(student.courses))
+
+print("✅ OOP working")
+print("")
+
+# Test 10: Error Handling
+print("🔟  ERROR HANDLING")
+print("----------------------------------------")
+print("Testing successful operation:")
+try {
+    var result = 100 / 4
+    print("Division result: " + result)
+} catch (error) {
+    print("Error occurred: " + error)
+}
+
+print("Testing error handling:")
+try {
+    var undefined_var = nonexistent_variable
+} catch (error) {
+    print("Successfully caught error: " + error)
+}
+
+print("Testing mathematical error:")
+try {
+    var impossible = 10 / 0
+} catch (error) {
+    print("Successfully caught division by zero: " + error)
+}
+
+print("✅ Error handling working")
+print("")
+
+# Test 11: JSON Processing
+print("1️⃣1️⃣  JSON PROCESSING")
+print("----------------------------------------")
+var project_data = {}
+project_data["name"] = "ShiboScript"
+project_data["version"] = "0.3.0"
+project_data["features"] = 11
+project_data["production_ready"] = true
+project_data["supported_os"] = ["Windows", "Linux", "macOS"]
+project_data["stats"] = {"downloads": 1000, "stars": 50, "contributors": 1}
+
+var json_output = json.encode(project_data)
+print("JSON output:")
+print(json_output)
+
+var parsed_data = json.decode(json_output)
+print("Parsed name: " + parsed_data.name)
+print("Parsed version: " + parsed_data.version)
+print("Parsed features: " + parsed_data.features)
+print("Parsed OS list: " + json.encode(parsed_data.supported_os))
+print("Parsed stats downloads: " + parsed_data.stats.downloads)
+
+print("✅ JSON processing working")
+print("")
+
+# Test 12: Advanced Features
+print("1️⃣2️⃣  ADVANCED FEATURES")
+print("----------------------------------------")
+print("List comprehensions simulation:")
+var numbers = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+var even_numbers = []
+var squared_odds = []
+
+var idx = 0
+while (idx < len(numbers)) {
+    var num = numbers[idx]
+    if (num % 2 == 0) {
+        append(even_numbers, num)
+    } else {
+        append(squared_odds, num * num)
+    }
+    idx = idx + 1
+}
+
+print("Original numbers: " + json.encode(numbers))
+print("Even numbers: " + json.encode(even_numbers))
+print("Squared odds: " + json.encode(squared_odds))
+
+print("String manipulation chain:")
+var text = "Hello World Programming Language"
+var processed = lower(text)
+processed = split(processed, " ")
+processed = sort(processed)
+processed = json.encode(processed)
+print("Processed result: " + processed)
+
+print("✅ Advanced features working")
+print("")
+
+print("========================================")
+print("🎉 ALL SHIBOSCRIPT FEATURES DEMONSTRATED!")
+print("========================================")
+print("")
+print("Features Successfully Tested:")
+print("✅ Variables and data types (int, float, string)")
+print("✅ Mathematical operations (+, -, *, /, %, etc.)")
+print("✅ String operations (concatenation, methods)")
+print("✅ List operations (create, modify, search)")
+print("✅ Dictionary operations (key-value storage)")
+print("✅ Function definitions and calls")
+print("✅ Control structures (if/else, while loops)")
+print("✅ Built-in libraries (math, random, time, crypto, base64)")
+print("✅ Object-oriented programming (classes, inheritance)")
+print("✅ Error handling (try/catch blocks)")
+print("✅ JSON processing (encode/decode)")
+print("✅ Advanced operations (sorting, filtering, chaining)")
+print("")
+print("🐕 SHIBOSCRIPT v0.3.0 - PRODUCTION READY!")
+print("Ready for real-world applications: web scraping, automation, data processing, system monitoring, and more!")

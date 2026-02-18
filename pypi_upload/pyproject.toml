@@ -1,0 +1,101 @@
+[build-system]
+requires = ["setuptools>=45", "wheel", "setuptools_scm[toml]>=6.2"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "shiboscript-pro"
+dynamic = ["version"]
+description = "A lightweight scripting language for education and automation - Production Ready"
+readme = "README.md"
+license = {text = "MIT"}
+authors = [
+    {name = "ShiboShreeRoy", email = "shiboshreeroycse@gmail.com"}
+]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "Intended Audience :: Education",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Software Development :: Interpreters",
+    "Topic :: Education",
+]
+requires-python = ">=3.8"
+dependencies = [
+    "Pillow>=8.0.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=6.0",
+    "pytest-cov",
+    "flake8",
+    "black",
+    "mypy",
+]
+gui = [
+    "customtkinter",
+    "tkinter",
+]
+web = [
+    "requests",
+]
+full = [
+    "customtkinter",
+    "requests",
+    "pillow",
+]
+
+[project.scripts]
+shiboscript = "shiboscript.cli:main"
+shibo = "shiboscript.cli:main"
+
+[project.urls]
+Homepage = "https://github.com/ShiboShreeRoy/ShiboScript"
+Repository = "https://github.com/ShiboShreeRoy/ShiboScript"
+"Bug Tracker" = "https://github.com/ShiboShreeRoy/ShiboScript/issues"
+Documentation = "https://shiboscript.readthedocs.io/"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.package-data]
+shiboscript = ["assets/*", "templates/*", "config/*"]
+
+[tool.black]
+line-length = 88
+target-version = ['py38']
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = [
+    "--strict-markers",
+    "--strict-config",
+    "-ra",
+    "--tb=short",
+]
+markers = [
+    "slow: marks tests as slow",
+    "integration: marks tests as integration tests",
+]
+
+[tool.coverage.run]
+source = ["src"]
+omit = [
+    "*/tests/*",
+    "*/venv/*",
+    "*/env/*",
+    "*/__pycache__/*",
+]
+
+[tool.mypy]
+python_version = "3.8"
+warn_return_any = true
+warn_unused_configs = true
+disallow_untyped_defs = true
